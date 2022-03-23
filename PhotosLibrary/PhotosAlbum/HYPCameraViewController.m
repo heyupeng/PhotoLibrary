@@ -1,53 +1,44 @@
 //
-//  ViewController.m
+//  HYPCameraViewController.m
 //  PhotosLibrary
 //
-//  Created by Peng on 2018/11/23.
-//  Copyright © 2018年 heyupeng. All rights reserved.
+//  Created by Peng on 2019/5/23.
+//  Copyright © 2019 heyupeng. All rights reserved.
 //
 
-#import "ViewController.h"
-#import "PhotosAlbum/HYPAlbumViewController.h"
-#import "PhotosAlbum/HYPCameraViewController.h"
-
+#import "HYPCameraViewController.h"
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <AVFoundation/AVFoundation.h>
 
-@interface ViewController ()
+@interface HYPCameraViewController ()
+
+@property (nonatomic, strong) UIImagePickerController * imagePickerController;
 
 @end
 
-@implementation ViewController
+@implementation HYPCameraViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
-}
-
-- (IBAction)photoClick:(UIButton *)sender {
-    HYPAlbumViewController * avc = [[HYPAlbumViewController alloc] init];
-    avc.completion = ^(BOOL isSuccess, NSArray * _Nonnull items) {
-        if (!isSuccess) {
-            NSLog(@"取消选择");
-        }
-    };
+    // Do any additional setup after loading the view.
     
-    UINavigationController * nav = [[UINavigationController alloc] initWithRootViewController:avc];
-    nav.navigationBar.barStyle = UIBarStyleBlack;
-    nav.modalPresentationStyle = UIModalPresentationFullScreen;
-    [self presentViewController:nav animated:YES completion:^{
-        
-    }];
 }
 
-- (IBAction)imagePickerAction:(UIButton *)sender {
-    UIImagePickerController * imagePicker = [self createImagePickerWithSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
-    [self presentViewController:imagePicker animated:YES completion:^{
-        
-    }];
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
 }
 
-#pragma mark - UIImagePickerController
-- (UIImagePickerController *)createImagePickerWithSourceType:(UIImagePickerControllerSourceType)sourceType {
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+- (UIImagePickerController *)createImagePickerControllerWithSourceType:(UIImagePickerControllerSourceType)sourceType {
     UIImagePickerController * imagePicker = [[UIImagePickerController alloc] init];
     imagePicker.delegate = self;
     imagePicker.sourceType = sourceType ;//UIImagePickerControllerSourceTypePhotoLibrary;
@@ -57,7 +48,7 @@
     }
     imagePicker.allowsEditing = YES;
     imagePicker.mediaTypes = @[(NSString *)kUTTypeImage, (NSString *)kUTTypeMovie];
-    
+
     return imagePicker;
 }
 #pragma mark - UIImagePickerControllerDelegate
