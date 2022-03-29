@@ -15,4 +15,6 @@
 
 #import "HYPPhotosAlbum.h"
 
+#define weakly(xx) __weak __typeof(xx) weak ## xx = xx;
+
 #endif /* PrefixHeader_pch */

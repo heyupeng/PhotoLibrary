@@ -85,9 +85,19 @@ static NSString * cellReuseIdentifier = @"CellReuseIdentifier";
 }
 
 - (void)setCostumBottomBar {
+    
+    UIEdgeInsets safeAreaInsets;
+    if (@available(iOS 11.0, *)) {
+        safeAreaInsets = UIApplication.sharedApplication.delegate.window.safeAreaInsets;
+    } else {
+//         Fallback on earlier versions
+    }
+    
+    CGFloat toolBarHeight = 44 + safeAreaInsets.bottom;
+
     CGRect frame = self.view.bounds;
-    frame.origin.y = CGRectGetHeight(frame) - 44;
-    frame.size.height = 44;
+    frame.origin.y = CGRectGetHeight(frame) - toolBarHeight;
+    frame.size.height = toolBarHeight;
     
     _bottomBar = [[HYPBottomBar alloc] init];
     _bottomBar.backgroundColor = [UIColor colorWithRed:30/255.0 green:32/255.0 blue:40/255.0 alpha:0.9];
@@ -137,11 +147,16 @@ static NSString * cellReuseIdentifier = @"CellReuseIdentifier";
     previewVC.dataSource = [self.selectedModels copy];
     previewVC.selectedItems = self.selectedModels;
     previewVC.currenIndexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+    previewVC.completion = self.completion;
+    
     [self.navigationController pushViewController:previewVC animated:YES];
 }
 
 - (void)bottomBarRightBtnClick:(UIButton *)sender {
-    
+    if (self.completion) {
+        self.completion(YES, self.selectedModels);
+    }
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)refreshBottomBar {
@@ -335,6 +350,7 @@ NSString * durationSecondToMinAndSec(NSTimeInterval duration) {
     previewVC.dataSource = self.dataSource;
     previewVC.selectedItems = self.selectedModels;
     previewVC.currenIndexPath = indexPath;
+    previewVC.completion = self.completion;
     [self.navigationController pushViewController:previewVC animated:YES];
 }
 

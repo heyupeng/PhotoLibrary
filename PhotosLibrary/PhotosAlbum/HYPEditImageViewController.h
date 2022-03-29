@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <Photos/Photos.h>
 
-#import "GeometryExt.h"
+#import "GeometryExtension.h"
 #import "HYPAssetModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -18,8 +18,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) HYPAssetModel * model;
 
-@property (nonatomic, strong) UIImage * inputImage;
-@property (nonatomic, strong) UIImage * outputImage;
 
 @end
 

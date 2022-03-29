@@ -5,6 +5,7 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19144"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -16,30 +17,80 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TFT-Bf-P39">
-                                <rect key="frame" x="30" y="78" width="31" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="照片"/>
-                                <connections>
-                                    <action selector="photoClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="rvB-f7-vG4"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6ux-d4-AFi">
-                                <rect key="frame" x="30" y="158" width="99" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="UIImagePicker"/>
-                                <connections>
-                                    <action selector="imagePickerAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4OT-hA-6XS"/>
-                                </connections>
-                            </button>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="t4m-qa-1vl">
+                                <rect key="frame" x="20" y="20" width="335" height="188.5"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="KLr-qN-wkx">
+                                        <rect key="frame" x="0.0" y="0.0" width="335" height="188.5"/>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="KLr-qN-wkx" secondAttribute="bottom" id="9YZ-El-Ogd"/>
+                                    <constraint firstItem="KLr-qN-wkx" firstAttribute="top" secondItem="t4m-qa-1vl" secondAttribute="top" id="Ak1-Qy-EnJ"/>
+                                    <constraint firstAttribute="width" secondItem="t4m-qa-1vl" secondAttribute="height" multiplier="16:9" id="Dg6-xb-LZ2"/>
+                                    <constraint firstItem="KLr-qN-wkx" firstAttribute="leading" secondItem="t4m-qa-1vl" secondAttribute="leading" id="hwP-bx-wTD"/>
+                                    <constraint firstAttribute="trailing" secondItem="KLr-qN-wkx" secondAttribute="trailing" id="z9E-oJ-8Wa"/>
+                                </constraints>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TdA-ch-n11">
+                                <rect key="frame" x="20" y="248.5" width="335" height="128"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TFT-Bf-P39">
+                                        <rect key="frame" x="8" y="8" width="46" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="照片库"/>
+                                        <connections>
+                                            <action selector="photoClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="rvB-f7-vG4"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6ux-d4-AFi">
+                                        <rect key="frame" x="118" y="8" width="99" height="30"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="UIImagePicker"/>
+                                        <connections>
+                                            <action selector="imagePickerAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4OT-hA-6XS"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2Is-UH-qZH">
+                                        <rect key="frame" x="8" y="81" width="109" height="31"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Filter"/>
+                                        <connections>
+                                            <action selector="FilterAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="GQ4-XN-T13"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="128" id="Hla-SR-gg9"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="TdA-ch-n11" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="EKO-1n-IsE"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="t4m-qa-1vl" secondAttribute="trailing" constant="20" id="bsw-sJ-dHf"/>
+                            <constraint firstItem="t4m-qa-1vl" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="gg6-Ax-hD4"/>
+                            <constraint firstItem="TdA-ch-n11" firstAttribute="top" secondItem="t4m-qa-1vl" secondAttribute="bottom" constant="40" id="jYe-af-Dc4"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="TdA-ch-n11" secondAttribute="trailing" constant="20" id="suW-b9-BNU"/>
+                            <constraint firstItem="t4m-qa-1vl" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="uF9-qX-MvA"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="imageView" destination="KLr-qN-wkx" id="3XX-PV-7vj"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="106" y="119"/>
+            <point key="canvasLocation" x="104.8" y="118.29085457271366"/>
         </scene>
     </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
 </document>

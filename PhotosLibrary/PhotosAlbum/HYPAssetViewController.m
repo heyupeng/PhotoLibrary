@@ -226,7 +226,7 @@
         
     }
     CIImage *output = [self imageByFilter:filterName withImage:self.model.originImage];
-    self.imageView.image = [self CIImageToUIImage:output];
+    self.imageView.image = CIImageToUIImage(output);
 }
 
 - (void)setToolBar {
@@ -589,15 +589,6 @@
     return outputImage;
 }
 
-- (UIImage *)CIImageToUIImage:(CIImage *)ciImage {
-    if (!_CIContext) {_CIContext = [[CIContext alloc] initWithOptions:@{kCIContextUseSoftwareRenderer : @(NO)}];}
-
-    CGImageRef imageRef = [_CIContext createCGImage:ciImage fromRect:ciImage.extent];
-    UIImage * image = [UIImage imageWithCGImage:imageRef];
-    CGImageRelease(imageRef);
-    return image;
-}
-
 - (void)ColorEffectFilter:(CIFilter *)filter {
     NSString * filterName = filter.name;
     
@@ -724,7 +715,7 @@
     CIImage *output = [self imageByFilter:filterName withImage:self.model.image];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        UIImage * image = [self CIImageToUIImage:output];
+        UIImage * image = CIImageToUIImage(output);
         cell.imageView.image = image;
     });
 
@@ -750,7 +741,7 @@
 
     CIImage *output = [self imageByFilter:filterName withImage:self.model.originImage];//[filter outputImage];
     
-    self.imageView.image = [self CIImageToUIImage:output];
+    self.imageView.image = CIImageToUIImage(output);
 }
 /*
 #pragma mark - Navigation

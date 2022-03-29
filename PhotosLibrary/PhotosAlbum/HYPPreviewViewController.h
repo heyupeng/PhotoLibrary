@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <Photos/Photos.h>
-#import "GeometryExt.h"
+#import "GeometryExtension.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSMutableArray * selectedItems;
 
 @property (nonatomic, strong) NSIndexPath * currenIndexPath;
+
+@property (nonatomic, strong) void(^completion)(BOOL isSuccess, NSArray * items);
 
 @end
 

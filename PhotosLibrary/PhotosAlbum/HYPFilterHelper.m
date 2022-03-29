@@ -10,17 +10,32 @@
 
 /// https://developer.apple.com/library/archive/documentation/GraphicsImaging/Reference/CoreImageFilterReference/index.html#//apple_ref/doc/filter/ci/CIExposureAdjust
 
+
+UIImage * CIImageToUIImage(CIImage * ciImage) {
+    static CIContext * __ciContext;
+    if (!__ciContext) {
+        NSDictionary * options = @{kCIContextUseSoftwareRenderer : @(NO)};
+        __ciContext = [[CIContext alloc] initWithOptions:options];
+    }
+    
+    CGImageRef imageRef = [__ciContext createCGImage:ciImage fromRect:ciImage.extent];
+    UIImage * image = [UIImage imageWithCGImage:imageRef];
+    CGImageRelease(imageRef);
+    return image;
+}
+
 @implementation HYPFilterHelper
 
 + (NSArray *)colorEffectFilterNames {
+    [CIFilter filterNamesInCategory:@""];
     NSArray * filterNames = @[
         @"CIColorCrossPolynomial",
-//        @"CIColorCube",
-//        @"CIColorCubesMixedWithMask",
-//        @"CIColorCubeWithColorSpace",
-//        @"CIColorCurves",
-//        @"CIColorMap",
-//        @"CILabDeltaE",
+        @"CIColorCube",
+        @"CIColorCubesMixedWithMask",
+        @"CIColorCubeWithColorSpace",
+        @"CIColorCurves",
+        @"CIColorMap",
+        @"CILabDeltaE",
         @"MyHazeFilter",
         @"HYPAnonymousFacesFilter",
         @"HYPOldFilm",

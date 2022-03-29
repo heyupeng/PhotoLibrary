@@ -1,5 +1,5 @@
 //
-//  GeometryExt.h
+//  GeometryExtension.h
 //  PhotosLibrary
 //
 //  Created by Peng on 2019/1/3.
@@ -60,3 +60,4 @@ CG_INLINE CGPoint CGRectGetMaxPoint(CGRect rect) {
     return CGPointMake(CGRectGetMaxX(rect), CGRectGetMaxY(rect));
 }
 
+CG_EXTERN CGRect CGRectEdgeInsets(CGRect rect, UIEdgeInsets insets);

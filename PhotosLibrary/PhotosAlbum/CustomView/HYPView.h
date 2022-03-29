@@ -10,7 +10,22 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static const CGFloat UINavigationBarBackgroundEffectAlpha = 0.85;
+
 @interface HYPView : UIView
+
+@end
+
+@interface HYPTopBar : UIView
+
+@property (nonatomic, strong) UIView * contentView;
+
+@property (nonatomic) UIEdgeInsets contentEdgeInsets;
+@property (nonatomic, strong) NSString * title;
+
+@property (nonatomic, strong) UIButton * leftBtn;
+@property (nonatomic, strong) UIButton * rightBtn;
+@property (nonatomic, readonly) NSArray * leftItems;
 
 @end
 
@@ -20,17 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UIButton * leftBtn;
 @property (nonatomic, strong) UIButton * rightBtn;
 @property (nonatomic) UIEdgeInsets contentEdgeInsets;
-@end
-
-
-@interface HYPToolBar : HYPView
-
-@property (nonatomic, strong) UIView * contentView;
-@property (nonatomic, strong) UIButton * leftBtn;
-@property (nonatomic, strong) UIButton * rightBtn;
-@property (nonatomic) UIEdgeInsets contentEdgeInsets;
-
-@property (nonatomic) NSMutableArray * items;
 @end
 
 

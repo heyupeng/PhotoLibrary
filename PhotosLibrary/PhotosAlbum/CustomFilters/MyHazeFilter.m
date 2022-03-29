@@ -19,7 +19,7 @@ static CIKernel * hazeRemovalKernel = nil;
     {
         NSBundle * bundle = [NSBundle bundleForClass:[self class]]; // 2
         NSString * path = [bundle pathForResource:@"MyHazeRemoval" ofType:@"cikernel"];
-        NSString * code = [NSString stringWithContentsOfFile:path]; // 3
+        NSString * code = [NSString stringWithContentsOfFile:path usedEncoding:nil error:nil]; // 3
         NSArray * kernels = [CIKernel kernelsWithString:code]; // 4
         hazeRemovalKernel = kernels [0]; // 5
     }
@@ -61,7 +61,7 @@ static CIKernel * hazeRemovalKernel = nil;
     
     return [hazeRemovalKernel applyWithExtent:inputImage.extent  roiCallback:^CGRect(int index, CGRect destRect) {
         return destRect;
-    } arguments:@[src,inputColor, @0.25, @0.0]];
+    } arguments:@[src,inputColor, inputDistance, inputSlope]];
     
 //    return [hazeRemovalKernel applyWithExtent:inputImage.extent  roiCallback:^CGRect(int index, CGRect destRect) {
 //        return destRect;

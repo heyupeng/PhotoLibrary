@@ -29,7 +29,7 @@
 		049EB37D21B0094900CEFC9A /* style_bar_cell_select_sel@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 049EB36B21B007B700CEFC9A /* style_bar_cell_select_sel@2x.png */; };
 		049EB37E21B0094900CEFC9A /* style_bar_cell_select_num@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 049EB36521B005AC00CEFC9A /* style_bar_cell_select_num@2x.png */; };
 		04AFBD6521DDF0CD00B78DA2 /* HYPEditImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04AFBD6421DDF0CD00B78DA2 /* HYPEditImageViewController.m */; };
-		04AFBD6C21DE1F9E00B78DA2 /* GeometryExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 04AFBD6B21DE1F9E00B78DA2 /* GeometryExt.m */; };
+		04AFBD6C21DE1F9E00B78DA2 /* GeometryExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 04AFBD6B21DE1F9E00B78DA2 /* GeometryExtension.m */; };
 		04C1018521D3294600B264C2 /* MyHazeFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 04C1018421D3294500B264C2 /* MyHazeFilter.m */; };
 		04C1018721D32D2300B264C2 /* MyHazeRemoval.cikernel in Resources */ = {isa = PBXBuildFile; fileRef = 04C1018621D32D2300B264C2 /* MyHazeRemoval.cikernel */; };
 		04EA25DD21A8110B00405011 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EA25DC21A8110B00405011 /* AppDelegate.m */; };
@@ -46,7 +46,16 @@
 		04EA261B21AB92B600405011 /* HYPAssetsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EA261A21AB92B600405011 /* HYPAssetsViewController.m */; };
 		04EA261E21AB976700405011 /* HYPCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EA261D21AB976700405011 /* HYPCollectionViewCell.m */; };
 		04EA262121ABF76400405011 /* HYPAssetViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EA262021ABF76400405011 /* HYPAssetViewController.m */; };
+		B803A9E127F18E6200F2C881 /* SliderCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B803A9E027F18E6200F2C881 /* SliderCell.xib */; };
+		B803A9E527F31C4400F2C881 /* UITableViewCell+AccessoryButton.m in Sources */ = {isa = PBXBuildFile; fileRef = B803A9E427F31C4400F2C881 /* UITableViewCell+AccessoryButton.m */; };
+		B803A9E927F3296F00F2C881 /* CIFilterAttribute.m in Sources */ = {isa = PBXBuildFile; fileRef = B803A9E827F3296F00F2C881 /* CIFilterAttribute.m */; };
+		B803A9ED27F3463E00F2C881 /* inputImage3.png in Resources */ = {isa = PBXBuildFile; fileRef = B803A9EA27F3463E00F2C881 /* inputImage3.png */; };
+		B803A9EE27F3463E00F2C881 /* inputImage2.png in Resources */ = {isa = PBXBuildFile; fileRef = B803A9EB27F3463E00F2C881 /* inputImage2.png */; };
+		B803A9EF27F3463E00F2C881 /* inputImage1.png in Resources */ = {isa = PBXBuildFile; fileRef = B803A9EC27F3463E00F2C881 /* inputImage1.png */; };
+		B803A9F127F3483000F2C881 /* maskImage.png in Resources */ = {isa = PBXBuildFile; fileRef = B803A9F027F3483000F2C881 /* maskImage.png */; };
 		B8C09EDE26F42DD800662E32 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8C09EDD26F42DD800662E32 /* Metal.framework */; };
+		B8D5717F27F1667E007E90D5 /* FilterAttributesController.m in Sources */ = {isa = PBXBuildFile; fileRef = B8D5717D27F1667E007E90D5 /* FilterAttributesController.m */; };
+		B8D5718327F175D5007E90D5 /* AttributeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B8D5718227F175D5007E90D5 /* AttributeCell.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -103,8 +112,8 @@
 		049EB36C21B007B700CEFC9A /* takePicture80@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "takePicture80@2x.png"; sourceTree = "<group>"; };
 		04AFBD6321DDF0CD00B78DA2 /* HYPEditImageViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HYPEditImageViewController.h; sourceTree = "<group>"; };
 		04AFBD6421DDF0CD00B78DA2 /* HYPEditImageViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HYPEditImageViewController.m; sourceTree = "<group>"; };
-		04AFBD6A21DE1F9E00B78DA2 /* GeometryExt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeometryExt.h; sourceTree = "<group>"; };
-		04AFBD6B21DE1F9E00B78DA2 /* GeometryExt.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GeometryExt.m; sourceTree = "<group>"; };
+		04AFBD6A21DE1F9E00B78DA2 /* GeometryExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeometryExtension.h; sourceTree = "<group>"; };
+		04AFBD6B21DE1F9E00B78DA2 /* GeometryExtension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GeometryExtension.m; sourceTree = "<group>"; };
 		04C1018321D3294500B264C2 /* MyHazeFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyHazeFilter.h; sourceTree = "<group>"; };
 		04C1018421D3294500B264C2 /* MyHazeFilter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyHazeFilter.m; sourceTree = "<group>"; };
 		04C1018621D32D2300B264C2 /* MyHazeRemoval.cikernel */ = {isa = PBXFileReference; lastKnownFileType = text; path = MyHazeRemoval.cikernel; sourceTree = "<group>"; };
@@ -136,7 +145,19 @@
 		04EA261D21AB976700405011 /* HYPCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HYPCollectionViewCell.m; sourceTree = "<group>"; };
 		04EA261F21ABF76400405011 /* HYPAssetViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HYPAssetViewController.h; sourceTree = "<group>"; };
 		04EA262021ABF76400405011 /* HYPAssetViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HYPAssetViewController.m; sourceTree = "<group>"; };
+		B803A9E027F18E6200F2C881 /* SliderCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SliderCell.xib; sourceTree = "<group>"; };
+		B803A9E327F31C4400F2C881 /* UITableViewCell+AccessoryButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UITableViewCell+AccessoryButton.h"; sourceTree = "<group>"; };
+		B803A9E427F31C4400F2C881 /* UITableViewCell+AccessoryButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UITableViewCell+AccessoryButton.m"; sourceTree = "<group>"; };
+		B803A9E727F3296F00F2C881 /* CIFilterAttribute.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CIFilterAttribute.h; sourceTree = "<group>"; };
+		B803A9E827F3296F00F2C881 /* CIFilterAttribute.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CIFilterAttribute.m; sourceTree = "<group>"; };
+		B803A9EA27F3463E00F2C881 /* inputImage3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = inputImage3.png; path = DefaultImage/inputImage3.png; sourceTree = "<group>"; };
+		B803A9EB27F3463E00F2C881 /* inputImage2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = inputImage2.png; path = DefaultImage/inputImage2.png; sourceTree = "<group>"; };
+		B803A9EC27F3463E00F2C881 /* inputImage1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = inputImage1.png; path = DefaultImage/inputImage1.png; sourceTree = "<group>"; };
+		B803A9F027F3483000F2C881 /* maskImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = maskImage.png; sourceTree = "<group>"; };
 		B8C09EDD26F42DD800662E32 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		B8D5717D27F1667E007E90D5 /* FilterAttributesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterAttributesController.m; sourceTree = "<group>"; };
+		B8D5717E27F1667E007E90D5 /* FilterAttributesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterAttributesController.h; sourceTree = "<group>"; };
+		B8D5718227F175D5007E90D5 /* AttributeCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AttributeCell.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,6 +201,10 @@
 		049EB35C21AFFBC200CEFC9A /* Resource */ = {
 			isa = PBXGroup;
 			children = (
+				B803A9F027F3483000F2C881 /* maskImage.png */,
+				B803A9EC27F3463E00F2C881 /* inputImage1.png */,
+				B803A9EB27F3463E00F2C881 /* inputImage2.png */,
+				B803A9EA27F3463E00F2C881 /* inputImage3.png */,
 				049EB36921B007B700CEFC9A /* takePicture@2x.png */,
 				049EB36C21B007B700CEFC9A /* takePicture80@2x.png */,
 				049EB36A21B007B700CEFC9A /* video_play_hl@2x.png */,
@@ -241,6 +266,7 @@
 		04EA25DA21A8110B00405011 /* PhotosLibrary */ = {
 			isa = PBXGroup;
 			children = (
+				B803A9E227F31C0E00F2C881 /* Extension */,
 				04EA261121A8126700405011 /* PhotosAlbum */,
 				04EA25DB21A8110B00405011 /* AppDelegate.h */,
 				04EA25DC21A8110B00405011 /* AppDelegate.m */,
@@ -281,8 +307,6 @@
 			isa = PBXGroup;
 			children = (
 				04EA261521A8145A00405011 /* HYPPhotosAlbum.h */,
-				04AFBD6A21DE1F9E00B78DA2 /* GeometryExt.h */,
-				04AFBD6B21DE1F9E00B78DA2 /* GeometryExt.m */,
 				04EA261221A8142800405011 /* HYPAlbumViewController.h */,
 				04EA261321A8142800405011 /* HYPAlbumViewController.m */,
 				04EA261921AB92B600405011 /* HYPAssetsViewController.h */,
@@ -301,6 +325,11 @@
 				040A881521B147A700222A53 /* HYPImageManager.m */,
 				040A881A21B7B41C00222A53 /* HYPFilterHelper.h */,
 				040A881B21B7B41C00222A53 /* HYPFilterHelper.m */,
+				B8D5717E27F1667E007E90D5 /* FilterAttributesController.h */,
+				B8D5717D27F1667E007E90D5 /* FilterAttributesController.m */,
+				B803A9E727F3296F00F2C881 /* CIFilterAttribute.h */,
+				B803A9E827F3296F00F2C881 /* CIFilterAttribute.m */,
+				B803A9E627F3293400F2C881 /* Cell */,
 				04AFBD6221DDECDA00B78DA2 /* CustomView */,
 				04C1018221D3291200B264C2 /* CustomFilters */,
 				049EB35421AE509100CEFC9A /* CollectVIew */,
@@ -317,6 +346,26 @@
 				04EA261721A814B300405011 /* Photos.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B803A9E227F31C0E00F2C881 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				B803A9E327F31C4400F2C881 /* UITableViewCell+AccessoryButton.h */,
+				B803A9E427F31C4400F2C881 /* UITableViewCell+AccessoryButton.m */,
+				04AFBD6A21DE1F9E00B78DA2 /* GeometryExtension.h */,
+				04AFBD6B21DE1F9E00B78DA2 /* GeometryExtension.m */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
+		B803A9E627F3293400F2C881 /* Cell */ = {
+			isa = PBXGroup;
+			children = (
+				B8D5718227F175D5007E90D5 /* AttributeCell.xib */,
+				B803A9E027F18E6200F2C881 /* SliderCell.xib */,
+			);
+			path = Cell;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -427,15 +476,21 @@
 				049EB37621B0094900CEFC9A /* takePicture80@2x.png in Resources */,
 				049EB37721B0094900CEFC9A /* video_play_hl@2x.png in Resources */,
 				049EB37821B0094900CEFC9A /* video_play@2x.png in Resources */,
+				B803A9EF27F3463E00F2C881 /* inputImage1.png in Resources */,
+				B803A9ED27F3463E00F2C881 /* inputImage3.png in Resources */,
 				049EB37921B0094900CEFC9A /* style_bar_back@2x.png in Resources */,
 				049EB37A21B0094900CEFC9A /* style_bar_back_white@2x.png in Resources */,
+				B8D5718327F175D5007E90D5 /* AttributeCell.xib in Resources */,
 				049EB37B21B0094900CEFC9A /* style_bar_back_white@3x.png in Resources */,
+				B803A9E127F18E6200F2C881 /* SliderCell.xib in Resources */,
 				049EB37C21B0094900CEFC9A /* style_bar_cell_select_def@2x.png in Resources */,
 				049EB37D21B0094900CEFC9A /* style_bar_cell_select_sel@2x.png in Resources */,
 				049EB37E21B0094900CEFC9A /* style_bar_cell_select_num@2x.png in Resources */,
 				0401BF3B22964C69001B4AB6 /* Localizable.strings in Resources */,
 				04EA25EB21A8110D00405011 /* LaunchScreen.storyboard in Resources */,
 				04C1018721D32D2300B264C2 /* MyHazeRemoval.cikernel in Resources */,
+				B803A9EE27F3463E00F2C881 /* inputImage2.png in Resources */,
+				B803A9F127F3483000F2C881 /* maskImage.png in Resources */,
 				04EA25E821A8110D00405011 /* Assets.xcassets in Resources */,
 				04EA25E321A8110B00405011 /* Main.storyboard in Resources */,
 			);
@@ -465,6 +520,7 @@
 				040A881F21B7F1AF00222A53 /* HYPView.m in Sources */,
 				049EB35B21AFC28D00CEFC9A /* HYPPreviewViewController.m in Sources */,
 				040A881C21B7B41C00222A53 /* HYPFilterHelper.m in Sources */,
+				B803A9E927F3296F00F2C881 /* CIFilterAttribute.m in Sources */,
 				046FFC8921D385020016F94E /* HYPOldFilm.m in Sources */,
 				04EA25E021A8110B00405011 /* ViewController.m in Sources */,
 				04EA25E621A8110B00405011 /* PhotosLibrary.xcdatamodeld in Sources */,
@@ -472,7 +528,8 @@
 				0401BF3822963F2D001B4AB6 /* HYPCameraViewController.m in Sources */,
 				040A881921B6206000222A53 /* UIImage+Editor.m in Sources */,
 				04EA25EE21A8110D00405011 /* main.m in Sources */,
-				04AFBD6C21DE1F9E00B78DA2 /* GeometryExt.m in Sources */,
+				B803A9E527F31C4400F2C881 /* UITableViewCell+AccessoryButton.m in Sources */,
+				04AFBD6C21DE1F9E00B78DA2 /* GeometryExtension.m in Sources */,
 				04C1018521D3294600B264C2 /* MyHazeFilter.m in Sources */,
 				04EA262121ABF76400405011 /* HYPAssetViewController.m in Sources */,
 				04AFBD6521DDF0CD00B78DA2 /* HYPEditImageViewController.m in Sources */,
@@ -483,6 +540,7 @@
 				04EA261E21AB976700405011 /* HYPCollectionViewCell.m in Sources */,
 				046FFC8621D34D1E0016F94E /* HYPAnonymousFacesFilter.m in Sources */,
 				04EA25DD21A8110B00405011 /* AppDelegate.m in Sources */,
+				B8D5717F27F1667E007E90D5 /* FilterAttributesController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

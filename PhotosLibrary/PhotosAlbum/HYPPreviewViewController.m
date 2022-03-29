@@ -269,7 +269,7 @@ static NSString * VideoCellReuseIdentifier = @"VideoCellReuseIdentifier";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    self.navigationController.navigationBarHidden = YES;
+//    self.navigationController.navigationBarHidden = YES;
     [self.collectionView setContentOffset:CGPointMake(self.currenIndexPath.row * CGRectGetWidth(self.collectionView.frame), 0) animated:NO];
     
     [self refreshNavBar];
@@ -279,7 +279,8 @@ static NSString * VideoCellReuseIdentifier = @"VideoCellReuseIdentifier";
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    self.navigationController.navigationBarHidden = NO;
+//    self.navigationController.navigationBarHidden = NO;
+    [_navBar removeFromSuperview];
 }
 
 - (void)viewDidLayoutSubviews {
@@ -313,10 +314,17 @@ static NSString * VideoCellReuseIdentifier = @"VideoCellReuseIdentifier";
     self.statusBarHidden = barHidden;
     _navBar.hidden = !_navBar.hidden;
     _bottomBar.hidden = !_bottomBar.hidden;
+    
+    self.navigationController.navigationBar.hidden = barHidden;
+    if (barHidden) {
+        self.view.backgroundColor = UIColor.blackColor;
+    } else {
+        self.view.backgroundColor = UIColor.whiteColor;
+    }
 }
 
 - (void)setup {
-    self.view.backgroundColor = [UIColor colorWithWhite:119/255.0 alpha:1];
+    self.view.backgroundColor = UIColor.whiteColor;//[UIColor colorWithWhite:119/255.0 alpha:1];
     self.statusBarHidden = NO;
     
     [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
@@ -331,26 +339,44 @@ static NSString * VideoCellReuseIdentifier = @"VideoCellReuseIdentifier";
 }
 
 - (void)setCustomNavbar {
+    
+    UIEdgeInsets safeAreaInsets;
+    if (@available(iOS 11.0, *)) {
+        safeAreaInsets = UIApplication.sharedApplication.delegate.window.safeAreaInsets;
+    } else {
+//         Fallback on earlier versions
+        safeAreaInsets = UIEdgeInsetsMake(20, 0, 0, 0);
+    }
+    
     CGRect frame = self.view.bounds;
-    frame.size.height = 64;
+//    frame.origin.y = safeAreaInsets.top;
+    frame.size.height = 44;
     
     UIView * navBar = [[UIView alloc] init];
-    navBar.backgroundColor = [UIColor colorWithRed:30/255.0 green:32/255.0 blue:40/255.0 alpha:0.7];
-    [self.view addSubview:navBar];
+//    [self.navigationController.navigationBar addSubview:navBar];
     navBar.frame = frame;
     _navBar = navBar;
     
+    UIView * backgroundView = [[UIView alloc] init];
+    backgroundView.frame = CGRectMake(0, -safeAreaInsets.top, CGRectGetWidth(frame), CGRectGetHeight(frame) + safeAreaInsets.top);
+    [navBar addSubview:backgroundView];
+    
+    frame = navBar.bounds;
     NSString * imageName = @"style_bar_back_white";
     UIButton * backBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     [navBar addSubview:backBtn];
-    backBtn.frame = CGRectMake(10, 20, 44, 44);
+    backBtn.frame = CGRectMake(10, 0, 44, 44);
     
     [backBtn setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
     [backBtn addTarget:self action:@selector(backBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     
+    UIView * buttonContentView = [[UIView alloc] initWithFrame:CGRectMake(375 - 44 - 10, 0, 44, 44)];
+    [self.navigationController.navigationBar addSubview:buttonContentView];
+    _navBar = buttonContentView;
+    
     UIButton * rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    [navBar addSubview:rightBtn];
-    rightBtn.frame = CGRectMake(375 - 44 - 10, 20, 44, 44);
+    rightBtn.frame = buttonContentView.bounds;
+    [buttonContentView addSubview:rightBtn];
     
     imageName = @"style_bar_cell_select_def";
     [rightBtn setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
@@ -363,7 +389,7 @@ static NSString * VideoCellReuseIdentifier = @"VideoCellReuseIdentifier";
     UILabel * numberLabel = [[UILabel alloc] init];
     numberLabel.textColor = [UIColor whiteColor];
     numberLabel.textAlignment = NSTextAlignmentCenter;
-    [navBar addSubview:numberLabel];
+    [buttonContentView addSubview:numberLabel];
     numberLabel.frame = rightBtn.frame;
     _badgeLable = numberLabel;
 }
@@ -423,9 +449,19 @@ static NSString * VideoCellReuseIdentifier = @"VideoCellReuseIdentifier";
 }
 
 - (void)setCostumBottomBar {
-    CGRect frame = self.view.bounds;
-    frame.origin.y = CGRectGetHeight(frame) - 44;
-    frame.size.height = 44;
+    
+    UIEdgeInsets safeAreaInsets;
+    if (@available(iOS 11.0, *)) {
+        safeAreaInsets = UIApplication.sharedApplication.delegate.window.safeAreaInsets;
+    } else {
+//         Fallback on earlier versions
+    }
+    
+    CGFloat toolBarHeight = 44 + safeAreaInsets.bottom;
+    
+    CGRect frame = self.view.bounds;    
+    frame.origin.y = CGRectGetHeight(frame) - toolBarHeight;
+    frame.size.height = toolBarHeight;
     
     _bottomBar = [[HYPBottomBar alloc] init];
     _bottomBar.frame = frame;
@@ -451,6 +487,11 @@ static NSString * VideoCellReuseIdentifier = @"VideoCellReuseIdentifier";
 }
 
 - (void)bottomBarRightBtnClick:(UIButton *)sender {
+    if (self.selectedItems.count < 1) return;
+    if (self.completion) {
+        self.completion(YES, self.selectedItems);
+    }
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)refreshBottomBar {
@@ -498,6 +539,7 @@ static NSString * VideoCellReuseIdentifier = @"VideoCellReuseIdentifier";
     collectionView.delegate = self;
     collectionView.dataSource = self;
     collectionView.pagingEnabled = YES;
+    collectionView.backgroundColor = UIColor.clearColor;
     if (@available(iOS 11.0, *)) {
         collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     }

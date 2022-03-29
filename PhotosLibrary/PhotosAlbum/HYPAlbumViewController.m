@@ -96,6 +96,14 @@
     [super viewWillAppear:animated];
 }
 - (void)loadData {
+    PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+    if (status == PHAuthorizationStatusAuthorized) {
+        [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
+        
+        [self fetchAssetCollections];
+        return;
+    }
+    
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
         NSLog(@"%ld", status);
         if (status == PHAuthorizationStatusAuthorized) {
@@ -227,6 +235,7 @@
     HYPAssetsViewController * vc = [[HYPAssetsViewController alloc] init];
     vc.title = model.title;
     vc.result = model.fetchResult;
+    vc.completion = vc.completion;
     
     [self.navigationController pushViewController:vc animated:YES];
 }

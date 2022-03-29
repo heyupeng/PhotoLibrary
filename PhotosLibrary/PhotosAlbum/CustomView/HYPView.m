@@ -7,17 +7,41 @@
 //
 
 #import "HYPView.h"
-#import "GeometryExt.h"
+#import "GeometryExtension.h"
+
+@implementation UIView (SafeAreaInsetsInWindow)
+
+- (UIEdgeInsets)safeAreaInsetsInWindow {
+    UIEdgeInsets safeAreaInsets = UIEdgeInsetsZero;
+    UIWindow * window;
+    if (self.window) {
+        window = self.window;
+        NSLog(@"ToolBar.window");
+    } else {
+        NSLog(@"UIApplication.window");
+#if 1
+        window = UIApplication.sharedApplication.delegate.window;
+#else
+        if (@available(iOS 13.0, *)) {
+            UIWindowScene * windowScene = (UIWindowScene *)[UIApplication.sharedApplication.connectedScenes anyObject];
+            window = [windowScene.windows firstObject];
+        } else {
+            // Fallback on earlier versions
+            window = UIApplication.sharedApplication.keyWindow;
+        }
+#endif
+    }
+    if (@available(iOS 11.0, *)) {
+        safeAreaInsets = window.safeAreaInsets;
+    } else {
+        // Fallback on earlier versions
+    }
+    return safeAreaInsets;
+}
+
+@end
 
 @implementation HYPView
-
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        [self setup];
-    }
-    return self;
-}
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -74,6 +98,122 @@
 
 @end
 
+@interface HYPTopBar ()
+
+@property (nonatomic, weak) UIView * backgroundView;
+
+@property (nonatomic, strong) UILabel * titleLabel;
+@end
+
+@implementation HYPTopBar
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self setup];
+    }
+    return self;
+}
+
+- (void)setup {
+    _contentEdgeInsets = UIEdgeInsetsZero;
+    self.backgroundColor = [[UIColor colorWithRed:30/255.0 green:32/255.0 blue:40/255.0 alpha:1.0] colorWithAlphaComponent:UINavigationBarBackgroundEffectAlpha];
+    
+    if (!_backgroundView) {
+        UIView * view = [[UIView alloc] init];
+        view.backgroundColor = [UIColor.grayColor colorWithAlphaComponent:0.2];
+        _backgroundView = view;
+        [self addSubview:view];
+    }
+    
+    if (!_contentView) {
+        _contentView = [[UIView alloc] init];
+        [self addSubview:_contentView];
+    }
+}
+
+- (CGRect)backgroundRectWithBounds:(CGRect)rect {
+    UIEdgeInsets safeAreaInsets = UIEdgeInsetsZero;
+    if (@available(iOS 11.0, *)) {
+        safeAreaInsets = self.safeAreaInsets;
+    } else {
+        // Fallback on earlier versions
+    }
+    
+    CGRect backgroundRect = rect;
+    backgroundRect = [self convertRect:rect toView:self.window];
+    if (backgroundRect.origin.y > safeAreaInsets.top) {
+        backgroundRect.origin.y = 0;
+    } else {
+        backgroundRect.origin.y = - safeAreaInsets.top;
+        backgroundRect.size.height += safeAreaInsets.top;
+    }
+    return backgroundRect;
+}
+
+- (CGRect)titleRectWithContentContentBounds:(CGRect)bounds {
+    if (_title.length == 0) return CGRectZero;
+    
+    CGRect textRect = [self.titleLabel textRectForBounds:bounds limitedToNumberOfLines:2];
+    textRect.origin.x = (CGRectGetWidth(bounds) - CGRectGetWidth(textRect)) * 0.5;
+    textRect.origin.y = (CGRectGetHeight(bounds) - CGRectGetHeight(textRect)) * 0.5;
+    return textRect;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    CGRect frame = self.bounds;
+    
+    // backgroundView
+    CGRect backgroundRect = [self backgroundRectWithBounds:self.bounds];
+    _backgroundView.frame = backgroundRect;
+    
+    // _contentView frame
+    frame = CGRectEdgeInsets(frame, _contentEdgeInsets);
+    _contentView.frame = frame;
+    
+    self.titleLabel.frame = [self titleRectWithContentContentBounds:_contentView.bounds];
+}
+
+- (void)setTitle:(NSString *)title {
+    if ([title isEqualToString:_title]) { return; }
+    _title = title;
+    
+    self.titleLabel.text = title;
+    
+    [self setNeedsLayout];
+}
+
+- (UILabel *)titleLabel {
+    if (!_titleLabel) {
+        _titleLabel = [[UILabel alloc] init];
+        _titleLabel.font = [UIFont boldSystemFontOfSize:[UIFont systemFontSize]];
+        _titleLabel.textColor = UIColor.whiteColor;
+        [_contentView addSubview:_titleLabel];
+    }
+    return _titleLabel;
+}
+
+- (UIButton *)leftBtn {
+    if (!_leftBtn) {
+        UIButton * leftBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_contentView addSubview:leftBtn];
+        _leftBtn = leftBtn;
+    }
+    return _leftBtn;
+}
+
+- (UIButton *)rightBtn {
+    if (!_rightBtn) {
+        UIButton * rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_contentView addSubview:rightBtn];
+        _rightBtn = rightBtn;
+    }
+    return _rightBtn;
+}
+
+@end
 
 @interface HYPBottomBar ()
 
@@ -83,7 +223,7 @@
 
 - (void)setup {
     _contentEdgeInsets = UIEdgeInsetsZero;
-    self.backgroundColor = [UIColor colorWithRed:30/255.0 green:32/255.0 blue:40/255.0 alpha:0.7];
+    self.backgroundColor = [[UIColor colorWithRed:30/255.0 green:32/255.0 blue:40/255.0 alpha:1.0] colorWithAlphaComponent:UINavigationBarBackgroundEffectAlpha];
     _contentView = [[UIView alloc] init];
     [self addSubview:_contentView];
 }
@@ -121,61 +261,6 @@
 - (UIButton *)rightBtn {
     if (!_rightBtn) {
         UIButton * rightBtn = [[UIButton alloc] init]; //[UIButton buttonWithType:UIButtonTypeCustom];
-        [_contentView addSubview:rightBtn];
-        _rightBtn = rightBtn;
-    }
-    return _rightBtn;
-}
-
-@end
-
-
-@interface HYPToolBar ()
-
-@end
-
-@implementation HYPToolBar
-
-- (void)setup {
-    _contentEdgeInsets = UIEdgeInsetsZero;
-    self.backgroundColor = [UIColor colorWithRed:30/255.0 green:32/255.0 blue:40/255.0 alpha:0.7];
-    _contentView = [[UIView alloc] init];
-    [self addSubview:_contentView];
-}
-
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    
-    CGRect frame = self.bounds;
-    // _contentView frame
-    frame.origin = CGPointMake(_contentEdgeInsets.left, _contentEdgeInsets.top);
-    frame.size.width -= _contentEdgeInsets.right + _contentEdgeInsets.left;
-    frame.size.height -= _contentEdgeInsets.top + _contentEdgeInsets.bottom;
-    _contentView.frame = frame;
-    
-    if (_leftBtn) {
-        frame = CGRectMake(10, 7, 70, 30);
-        _leftBtn.frame = frame;
-    }
-    if (_rightBtn) {
-        frame = CGRectMake(0, 7, 70, 30);
-        frame.origin.x = CGRectGetWidth(_contentView.frame) - CGRectGetWidth(frame) - 10;
-        _rightBtn.frame = frame;
-    }
-}
-
-- (UIButton *)leftBtn {
-    if (!_leftBtn) {
-        UIButton * leftBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_contentView addSubview:leftBtn];
-        _leftBtn = leftBtn;
-    }
-    return _leftBtn;
-}
-
-- (UIButton *)rightBtn {
-    if (!_rightBtn) {
-        UIButton * rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         [_contentView addSubview:rightBtn];
         _rightBtn = rightBtn;
     }

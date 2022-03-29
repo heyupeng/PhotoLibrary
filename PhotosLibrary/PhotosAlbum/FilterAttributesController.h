@@ -12,14 +12,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-UIKIT_EXTERN UIImage * CIImageToUIImage(CIImage * ciImage);
+@interface FilterAttributesController : UIViewController
 
-@interface HYPFilterHelper : NSObject
+@property (nonatomic, strong) CIFilter * filter;
 
-+ (NSArray *)colorEffectFilterNames;
-
-+ (CIFilter*) chromaKeyFilterHuesFrom:(CGFloat)minHue to:(CGFloat)maxHue;
-
+@property (nonatomic, copy) void(^FilterAttributesValueChangedBlock)(CIFilter * filter, NSDictionary * att);
 @end
 
 NS_ASSUME_NONNULL_END
