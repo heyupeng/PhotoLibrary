@@ -19,11 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) NSString * title;
 
-@property (nonatomic, strong) UIImage * image;
+@property (nonatomic, strong, nullable) UIImage * image;
 
-@property (nonatomic, strong) UIImage * previewImage;
+@property (nonatomic, strong, nullable) UIImage * previewImage;
 
-@property (nonatomic, strong) UIImage * originImage;
+@property (nonatomic, strong, nullable) UIImage * originImage;
 
 @property (nonatomic, assign) BOOL isSelected;
 
@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) PHImageRequestID requestID;
 
 - (void)requestImageWithSize:(CGSize)size compeletion:(void(^)(UIImage *image, NSDictionary * info))completion;
+
+- (void)resetImages;
 
 @end
 
@@ -46,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 // collection 图集
 @property (nonatomic, strong) PHFetchResult<PHAsset *> * fetchResult;
 
-@property (nonatomic, strong, readonly) NSString * title;
+@property (nonatomic, strong) NSString * title;
 // 图集容量 [fetchResult count]
 @property (nonatomic, readonly) NSInteger count;
 

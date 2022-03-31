@@ -175,11 +175,11 @@
 }
 #pragma mark - PHPhotoLibraryChangeObserver
 - (void)photoLibraryDidChange:(PHChange *)changeInstance {
-//    PHFetchResultChangeDetails * changeDetails = [changeInstance changeDetailsForFetchResult:self.collection];
-//    if (changeDetails && changeDetails.hasIncrementalChanges) {
+    PHFetchResultChangeDetails * changeDetails = [changeInstance changeDetailsForFetchResult:self.collection];
+    if (changeDetails && changeDetails.hasIncrementalChanges) {
 //        PHFetchResult * fetchResult = changeDetails.fetchResultAfterChanges;
 //        self.collection = fetchResult;
-//    }
+    }
 }
 
 
@@ -235,7 +235,7 @@
     HYPAssetsViewController * vc = [[HYPAssetsViewController alloc] init];
     vc.title = model.title;
     vc.result = model.fetchResult;
-    vc.completion = vc.completion;
+    vc.completion = self.completion;
     
     [self.navigationController pushViewController:vc animated:YES];
 }

@@ -72,6 +72,12 @@
     _requestID = requestID;
 }
 
+- (void)resetImages {
+    self.image = nil;
+    self.previewImage = nil;
+    self.originImage = nil;
+}
+
 @end
 
 #pragma mark - HYPAlbumModel
@@ -117,6 +123,7 @@
 }
 
 - (NSString *)title {
+    if (_title) return _title;
     return _collection.localizedTitle;
 }
 

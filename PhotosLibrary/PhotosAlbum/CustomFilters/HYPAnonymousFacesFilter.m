@@ -8,6 +8,8 @@
 
 #import "HYPAnonymousFacesFilter.h"
 
+const NSString * kAnonymousFacesFilterDisplayName = @"人脸像素化";
+
 @implementation HYPAnonymousFacesFilter
 
 - (id)init
@@ -19,29 +21,29 @@
 + (NSDictionary *)customAttributes
 {
     return @{
-             @"inputDistance" :  @{
-                     kCIAttributeMin       : @0.0,
-                     kCIAttributeMax       : @1.0,
-                     kCIAttributeSliderMin : @0.0,
-                     kCIAttributeSliderMax : @0.7,
-                     kCIAttributeDefault   : @0.2,
-                     kCIAttributeIdentity  : @0.0,
-                     kCIAttributeType      : kCIAttributeTypeScalar
-                     },
-             @"inputSlope" : @{
-                     kCIAttributeSliderMin : @-0.01,
-                     kCIAttributeSliderMax : @0.01,
-                     kCIAttributeDefault   : @0.00,
-                     kCIAttributeIdentity  : @0.00,
-                     kCIAttributeType      : kCIAttributeTypeScalar
-                     },
-             kCIInputColorKey : @{
-                     kCIAttributeDefault : [CIColor colorWithRed:1.0
-                                                           green:1.0
-                                                            blue:1.0
-                                                           alpha:1.0]
-                     },
-             };
+        kCIAttributeFilterDisplayName : kAnonymousFacesFilterDisplayName,
+        @"inputDistance" :  @{
+             kCIAttributeMin       : @0.0,
+             kCIAttributeMax       : @1.0,
+             kCIAttributeSliderMin : @0.0,
+             kCIAttributeSliderMax : @0.7,
+             kCIAttributeDefault   : @0.2,
+             kCIAttributeIdentity  : @0.0,
+             kCIAttributeType      : kCIAttributeTypeScalar
+         },
+         @"inputScale" : @{
+             kCIAttributeDefault   : @1.00,
+             kCIAttributeSliderMin : @1,
+             kCIAttributeSliderMax : @100,
+             kCIAttributeType      : kCIAttributeTypeDistance
+         },
+         kCIInputColorKey : @{
+            kCIAttributeDefault : [CIColor colorWithRed:1.0
+                                                  green:1.0
+                                                   blue:1.0
+                                                  alpha:1.0],
+        },
+    };
 }
 
 // Build a Mask From the Faces Detected in the Image
@@ -56,9 +58,11 @@
     }
     
     // 1.Create a Pixellated version of the image
+    CGFloat scale = MAX(inputImage.extent.size.width, inputImage.extent.size.height)/60;
+    scale = inputScale.floatValue;
     CIFilter * pixellated = [CIFilter filterWithName:@"CIPixellate"];
     [pixellated setValue:inputImage forKey:kCIInputImageKey];
-    [pixellated setValue:[NSNumber numberWithInt:MAX(inputImage.extent.size.width, inputImage.extent.size.height)/60] forKey:kCIInputScaleKey];
+    [pixellated setValue:[NSNumber numberWithInt:scale] forKey:kCIInputScaleKey];
     
     // 2.Build a Mask From the Faces Detected in the Image
     // Create a green circle to cover the rects that are returned.
@@ -99,7 +103,7 @@
     [CIFilter registerFilterName: @"HYPAnonymousFacesFilter"
                      constructor: self
                  classAttributes:
-     @{kCIAttributeFilterDisplayName : @"HYPAnonymousFacesFilter",
+     @{kCIAttributeFilterDisplayName : kAnonymousFacesFilterDisplayName,
        kCIAttributeFilterCategories : @[
                kCICategoryColorAdjustment, kCICategoryVideo,
                kCICategoryStillImage, kCICategoryInterlaced,
@@ -107,11 +111,5 @@
      ];
 }
 
-+ (CIFilter *)filterWithName: (NSString *)name
-{
-    CIFilter  *filter;
-    filter = [[self alloc] init];
-    return filter;
-}
 @end
 

@@ -28,7 +28,7 @@ static CIKernel * hazeRemovalKernel = nil;
 
 + (NSDictionary *)customAttributes
 {
-    return @{
+    return @{kCIAttributeFilterDisplayName : @"除雾效果",
              @"inputDistance" :  @{
                      kCIAttributeMin       : @0.0,
                      kCIAttributeMax       : @1.0,

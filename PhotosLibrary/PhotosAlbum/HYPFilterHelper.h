@@ -10,7 +10,28 @@
 #import <CoreImage/CoreImage.h>
 #import <UIKit/UIKit.h>
 
+#import "ColorConversion.h"
+
 NS_ASSUME_NONNULL_BEGIN
+
+typedef NS_ENUM(NSUInteger, CICategoryType) {
+    CICategoryTypeBlur,
+    CICategoryTypeColorAdjustment,
+    CICategoryTypeColorEffect,
+    CICategoryTypeCompositeOperation,
+    CICategoryTypeDistortionEffect,
+    CICategoryTypeGenerator,
+    CICategoryTypeGeometryAdjustment,
+    CICategoryTypeGradient,
+    CICategoryTypeHalftoneEffect,
+    CICategoryTypeReduction,
+    CICategoryTypeSharpen,
+    CICategoryTypeStylize,
+    CICategoryTypeTileEffect,
+    CICategoryTypeTransition,
+};
+
+NSData * colorCubeTableCreateWithDimension(unsigned int dimension, float minHue, float maxHue);
 
 UIKIT_EXTERN UIImage * CIImageToUIImage(CIImage * ciImage);
 
@@ -18,7 +39,8 @@ UIKIT_EXTERN UIImage * CIImageToUIImage(CIImage * ciImage);
 
 + (NSArray *)colorEffectFilterNames;
 
-+ (CIFilter*) chromaKeyFilterHuesFrom:(CGFloat)minHue to:(CGFloat)maxHue;
++ (CIFilter
+   *)chromaKeyFilterWithDimension:(NSUInteger)dimension HuesFrom:(CGFloat)minHue to:(CGFloat)maxHue;
 
 @end
 

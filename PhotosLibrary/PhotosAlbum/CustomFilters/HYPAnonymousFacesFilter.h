@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface HYPAnonymousFacesFilter : CIFilter
 {
     CIImage * inputImage;
+    NSNumber * inputScale;
 }
 @end
 

@@ -58,18 +58,25 @@ static HYPImageManager * shareManager;
         predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo];
     }
     
+    NSMutableArray * dataSource = [NSMutableArray new];
+
     PHFetchOptions * options = [[PHFetchOptions alloc] init];
     options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:_sortAscendingDate]];
     options.predicate = predicate;
     
-//    PHFetchResult<PHAsset *> * allPhotos = [PHAsset fetchAssetsWithOptions:options];
+    PHFetchResult<PHAsset *> * allPhotos = [PHAsset fetchAssetsWithOptions:options];
+    HYPAlbumModel * albumModel = [[HYPAlbumModel alloc] init];
+//    albumModel.collection = collection;
+    albumModel.options = options;
+    albumModel.fetchResult = allPhotos;
+    albumModel.title = NSLocalizedString(@"All Photos", comment: @""); // @"allPhotos";
+    
+    [dataSource addObject:albumModel];
     
     PHFetchResult<PHAssetCollection *> * smartAlbumCollections = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeAlbumRegular options:nil];
     
     PHFetchResult<PHAssetCollection *> * albumCollections = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAlbumRegular options:nil];
-    
-    NSMutableArray * dataSource = [NSMutableArray new];
-    
+        
     [dataSource addObjectsFromArray:[self getAlbumModelsWithCollections:smartAlbumCollections options:options]];
     
     [dataSource addObjectsFromArray:[self getAlbumModelsWithCollections:albumCollections options:options]];
@@ -89,7 +96,7 @@ static HYPImageManager * shareManager;
         PHFetchResult<PHAsset *> * result = [PHAsset fetchAssetsInAssetCollection:collection options:options];
         
         // 过滤空相集
-        if (!_isShowEmptyAlbumCollection && result.count < 1) continue;
+//        if (!_isShowEmptyAlbumCollection && result.count < 1) continue;
         
         HYPAlbumModel * albumModel = [[HYPAlbumModel alloc] init];
         albumModel.collection = collection;

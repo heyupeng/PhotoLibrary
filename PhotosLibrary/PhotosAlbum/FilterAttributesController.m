@@ -196,6 +196,7 @@
     [self initTopBar];
     
     UIImageView * imageView = [[UIImageView alloc] init];
+    imageView.backgroundColor = UIColor.whiteColor;
     _imageView = imageView;
     _imageView.contentMode = UIViewContentModeScaleAspectFit;
     [self.view addSubview:_imageView];
@@ -230,6 +231,20 @@
     _topBar.title = _filter.name;
 }
 
+- (void)setupDefault:(CIFilterAttribute *)att {
+    if ([att.attClassName isEqualToString:NSStringFromClass([NSAttributedString class])]) {
+        NSMutableAttributedString * attstr = [[NSMutableAttributedString alloc] initWithString:@"我是一个带有属性的字符串" attributes:@{NSFontAttributeName: [UIFont systemFontOfSize:15], NSForegroundColorAttributeName: [UIColor grayColor]}];
+        
+        [attstr addAttributes:@{NSFontAttributeName: [UIFont boldSystemFontOfSize:20], NSForegroundColorAttributeName: UIColor.orangeColor} range:NSMakeRange(5, 3)];
+        att.value = attstr;
+    }
+    else if ([att.attClassName isEqualToString:NSStringFromClass([NSString class])]) {
+        att.value = @"你想要的文本";
+    }
+}
+
+#define CORE_IMAGE_FILTER_REFERENCE_URL @"https://developer.apple.com/library/archive/documentation/GraphicsImaging/Reference/CoreImageFilterReference/index.html#//apple_ref/doc/uid/TP30000136-SW29"
+
 - (void)initDataSource {
     NSArray * inputKeys = [self.filter inputKeys];
     NSMutableArray * dataSource = [[NSMutableArray alloc] initWithCapacity:inputKeys.count];
@@ -239,12 +254,24 @@
         CIImage * inputImage = [_filter valueForKey:kCIInputImageKey];
         extent = inputImage.extent;
     }
+//    if ([self.filter.name containsString:@"codeGenerator"]) {
+        // 条形码生成器
+        if ([inputKeys containsObject:@"inputMessage"]) {
+            NSString * message = CORE_IMAGE_FILTER_REFERENCE_URL;
+            [self.filter setValue:[message dataUsingEncoding:NSUTF8StringEncoding] forKey:@"inputMessage"];
+        }
+//    }
     
     for (NSString * inputKey in inputKeys) {
         NSDictionary * attribute = [[self.filter attributes] objectForKey:inputKey];
         CIFilterAttribute * att = [[CIFilterAttribute alloc] initWithInputKey:inputKey attribute:attribute extent:extent];
         id value = [_filter valueForKey:inputKey];
         if (value) { att.value = value; }
+        if (!value) {
+            [self setupDefault:att];
+            [self didChangeAttribute:att];
+        }
+        
         [dataSource addObject:att];
     }
     _dataSource = dataSource;
@@ -277,7 +304,17 @@
     frame.size.height = CGRectGetHeight(self.view.bounds) - frame.origin.y;
     self.tableView.frame = frame;
     
-    self.imageView.image = CIImageToUIImage(_filter.outputImage);
+    [self updateOutputImage:_filter.outputImage];
+}
+
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [super touchesEnded:touches withEvent:event];
+    if ([self.imageView.backgroundColor isEqual:UIColor.whiteColor]) {
+        self.imageView.backgroundColor = UIColor.blackColor;
+    }
+    else {
+        self.imageView.backgroundColor = UIColor.whiteColor;
+    }
 }
 
 - (void)topBarRightItemsAction:(UIBarButtonItem *)sender {
@@ -286,8 +323,25 @@
 
 - (void)didChangeAttribute:(CIFilterAttribute *)attrubite {
     [self.filter setValue:attrubite.value forKey:attrubite.inputKey];
+    if ([attrubite.inputKey hasSuffix:@"CubeDimension"]) {
+        
+    }
+    CIImage * outputImage = self.filter.outputImage;
+    [self updateOutputImage:outputImage];
+}
+
+- (void)updateOutputImage:(CIImage *)outputImage {
+//    CIImage * outputImage = self.filter.outputImage;
+    CGRect extent = outputImage.extent;
+    if (extent.size.width > pow(10, 4)) {
+        CGFloat ratio = extent.size.width / extent.size.height;
+        extent.size = CGSizeMake(1000 * ratio, 1000);
+        extent.origin = CGPointZero;//
+//        extent.origin = CGPointMake(extent.size.width * -0.5, extent.size.width * 0.5);
+        outputImage = [outputImage imageByCroppingToRect:extent];
+    }
     
-    self.imageView.image = CIImageToUIImage(self.filter.outputImage);
+    self.imageView.image = CIImageToUIImage(outputImage);
 }
 
 - (void)pickImage:(void(^)(BOOL isSuccess, NSArray * items))completionhandler {

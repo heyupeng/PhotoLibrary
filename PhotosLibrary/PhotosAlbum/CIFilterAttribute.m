@@ -34,6 +34,10 @@ CIVector * CIVectorCreateWithCIVector(CIVector * vector, CGFloat value, NSUInteg
 
 @implementation CIFilterAttribute
 
++ (instancetype)attributeWithInput:(NSString *)inputKey att:(NSDictionary *)att extent:(CGRect)extent {
+    return [[self alloc] initWithInputKey:inputKey attribute:att extent:extent];
+}
+
 - (instancetype)initWithInputKey:(NSString *)inputKey attribute:(NSDictionary *)attribute extent:(CGRect)extent {
     self = [super init];
     if (self) {
@@ -54,13 +58,26 @@ CIVector * CIVectorCreateWithCIVector(CIVector * vector, CGFloat value, NSUInteg
         _attMaxValue = [attribute objectForKey:kCIAttributeMax];
         _attMinValue = [attribute objectForKey:kCIAttributeMin];
         
+        if ([_attType isEqualToString:kCIAttributeTypePosition]) {
+            // kCIAttributeTypePosition 
+            [self setupSliderValueForPositionWithExtent:extent];
+        }
+        
         _value = _attDefaultValue;
     }
     return self;
 }
 
-+ (instancetype)attributeWithInput:(NSString *)inputKey att:(NSDictionary *)att extent:(CGRect)extent {
-    return [[self alloc] initWithInputKey:inputKey attribute:att extent:extent];
+- (void)setupSliderValueForPositionWithExtent:(CGRect)extent {
+    CGSize size = extent.size;
+    if (CGSizeEqualToSize(size, CGSizeZero)) {
+        size = CGSizeMake(300, 300);
+    }
+    CIVector * max = [CIVector vectorWithX:size.width Y:size.height];
+    _attSliderMaxValue = max;
+    
+    CIVector * min = [CIVector vectorWithX:-50 Y:-50];
+    _attMinValue = min;
 }
 
 - (void)updateValue:(CGFloat)floatValue atElementIndex:(NSUInteger)index {
@@ -68,7 +85,11 @@ CIVector * CIVectorCreateWithCIVector(CIVector * vector, CGFloat value, NSUInteg
     id newValue;
     
     if ([className isEqualToString:NSStringFromClass(NSNumber.class)]) {
-        newValue = [NSNumber numberWithFloat:floatValue];
+        if ([_attType isEqualToString:kCIAttributeTypeScalar]) {
+            newValue = [NSNumber numberWithFloat:floatValue];
+        } else {
+            newValue = [NSNumber numberWithInteger:(NSInteger)floatValue];
+        }
     }
     else if ([className isEqualToString:@"CIVector"]) {
         CIVector * oldVector = self.value;
@@ -115,6 +136,9 @@ CIVector * CIVectorCreateWithCIVector(CIVector * vector, CGFloat value, NSUInteg
         else if ([inputKey containsString:kCoefficients.copy]) {
             return [CIVector vectorWithX:-1 Y:-1 Z:-1 W:-1];
         }
+        else if ([_attType isEqualToString:kCIAttributeTypePosition]) {
+            vector = [CIVector vectorWithCGPoint:CGPointMake(-100, -100)];
+        }
         return vector;
     }
     return nil;
@@ -136,7 +160,7 @@ CIVector * CIVectorCreateWithCIVector(CIVector * vector, CGFloat value, NSUInteg
     if ([className isEqualToString:@"CIVector"]) {
         CIVector  * vector;
         if ([inputKey isEqualToString:kCIInputCenterKey]) {
-            CGPoint point = CGPointZero;
+            CGPoint point = CGPointMake(300, 300);
             vector = [CIVector vectorWithCGPoint:point];
         }
         else if ([inputKey isEqualToString:kCIInputExtentKey]) {
@@ -145,6 +169,9 @@ CIVector * CIVectorCreateWithCIVector(CIVector * vector, CGFloat value, NSUInteg
         }
         else if ([inputKey containsString:kCoefficients.copy]) {
             return [CIVector vectorWithX:2 Y:2 Z:2 W:2];
+        }
+        else if ([_attType isEqualToString:kCIAttributeTypePosition]) {
+            vector = [CIVector vectorWithCGPoint:CGPointMake(500, 500)];
         }
         return vector;
     }

@@ -65,6 +65,16 @@
 
 @end
 
+@interface ToolBar : UIView
+
+@end
+
+@interface ToolBar () <UICollectionViewDelegate, UICollectionViewDataSource>
+
+@property (nonatomic, strong) UICollectionView * collectView;
+@property (nonatomic, strong) NSMutableArray * dataSource;
+
+@end
 
 @interface HYPEditImageViewController ()<UICollectionViewDelegate, UICollectionViewDataSource, UIScrollViewDelegate>
 
@@ -79,6 +89,8 @@
 
 @property (nonatomic, strong) UIImage * inputImage;
 @property (nonatomic, strong) UIImage * outputImage;
+
+@property (nonatomic, strong) CIFilter * fliter;
 
 @end
 
@@ -116,7 +128,7 @@
 }
 
 - (BOOL)prefersStatusBarHidden {
-    return YES;
+//    return YES;
     return [super prefersStatusBarHidden];
 }
 
@@ -126,7 +138,7 @@
     if (self.navigationController.childViewControllers.count == 1) {
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"返回" style:UIBarButtonItemStylePlain target:self action:@selector(topBarLeftItemsAction:)];
     }
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"下一步" style:UIBarButtonItemStylePlain target:self action:@selector(topBarRightItemsAction:)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"保存" style:UIBarButtonItemStylePlain target:self action:@selector(topBarRightItemsAction:)];
     
     UIView * view = [[UIView alloc] init];
     view.frame = self.view.bounds;
@@ -182,7 +194,7 @@
 }
 
 - (void)topBarRightItemsAction:(UIBarButtonItem *)sender {
-    
+    [self saveChangedImageToPhotoLibrary];
 }
 
 - (CGRect)toolBarRectWithBounds:(CGRect)bounds {
@@ -192,7 +204,7 @@
     } else {
 //         Fallback on earlier versions
     }
-    CGFloat toolBarHeight = 44 + safeAreaInsets.bottom;
+    CGFloat toolBarHeight = 49 + safeAreaInsets.bottom;
     
     CGRect frame = bounds;
     frame.origin.y = CGRectGetHeight(frame) - toolBarHeight;
@@ -211,10 +223,15 @@
     [self.view addSubview:toolBar];
     // 2
     UIView * toolBarContentViw = [[UIView alloc] init];
-    toolBarContentViw.frame = CGRectMake(0, 0, CGRectGetWidth(frame), 44);
+    toolBarContentViw.frame = CGRectMake(0, 0, CGRectGetWidth(frame), 49);
     [toolBar addSubview:toolBarContentViw];
+    
+    UIScrollView * buttonContentView = [[UIScrollView alloc] init];
+    buttonContentView.frame = toolBarContentViw.bounds;
+    [toolBarContentViw addSubview:buttonContentView];
+    
     // 3
-    NSArray * items = @[@"ColorEffect", @"Stylize", @"Adjustment", @"Transition", @"HalftoneEffect"];
+    NSArray * items = @[@"Blur", @"Adjustment", @"Effect", @"HalftoneEffect", @"DistortionEffect", @"Generator", @"Stylize", @"Transition", ];
     NSMutableArray * btns = [NSMutableArray new];
     CGFloat left = 5;
     for (int i = 0; i < items.count; i ++) {
@@ -226,6 +243,7 @@
         CGRect textRect = [item boundingRectWithSize:CGSizeMake(200, 44) options:0 attributes:atts context:nil];
         textRect = CGRectMake(left, 0, CGRectGetWidth(textRect) + 20, 44);
         left += CGRectGetWidth(textRect);
+        textRect = CGRectInset(textRect, 5, 5);
         
         UIButton * btn = [UIButton buttonWithType:UIButtonTypeCustom];
         btn.frame = textRect;
@@ -237,32 +255,63 @@
         [btn addTarget:self action:@selector(toolbarBtnClick:) forControlEvents:UIControlEventTouchUpInside];
         
         [btns addObject:btn];
-        [toolBarContentViw addSubview:btn];
+        [buttonContentView addSubview:btn];
     }
+    CGSize contentSize = buttonContentView.bounds.size;
+    contentSize.width = left;
+    buttonContentView.contentSize = contentSize;
 }
 
 - (void)toolbarBtnClick:(UIButton *)sender {
     NSInteger index = sender.tag - 1024;
     NSLog(@"Tool bar index:%ld", index);
-    if (index == 0) {
-        [self filterListForColorEffect];
-    } else if (index == 1){
-        [self filterListForStylize];
-    } else if (index == 2){
-        [self filterListForColorAdjustment];
-    } else if (index == 3) {
-        NSArray * names = [CIFilter filterNamesInCategory:kCICategoryTransition];
-        [self filterEffectBrowser:names];
-    } else if (index == 4) {
-        NSArray * names = [CIFilter filterNamesInCategory:kCICategoryHalftoneEffect];
-        [self filterEffectBrowser:names];
-    } else {
-            
+    
+    switch (index) {
+        case 0: {
+            NSArray * names = [CIFilter filterNamesInCategory:kCICategoryBlur];
+            [self filterEffectBrowser:names];
+        }
+            break;
+        case 1: {
+            [self filterListForColorAdjustment];
+        }
+            break;
+        case 2: {
+            [self filterListForColorEffect];
+        }
+            break;
+        case 3: {
+            NSArray * names = [CIFilter filterNamesInCategory:kCICategoryHalftoneEffect];
+            [self filterEffectBrowser:names];
+        }
+            break;
+        case 4: {
+            NSArray * names = [CIFilter filterNamesInCategory:kCICategoryDistortionEffect];
+            [self filterEffectBrowser:names];
+        }
+            break;
+        case 5: {
+            NSArray * names = [CIFilter filterNamesInCategory:kCICategoryGenerator];
+            [self filterEffectBrowser:names];
+        }
+            break;
+        case 6: {
+            [self filterListForStylize];
+        }
+            break;
+        case 7: {
+            NSArray * names = [CIFilter filterNamesInCategory:kCICategoryTransition];
+            [self filterEffectBrowser:names];
+        }
+            break;
+        default:
+            break;
+    }
+ 
 //        self.navigationController.navigationBar.hidden = !self.navigationController.navigationBar.hidden;
 //        if (self.navigationController.navigationBar.hidden) {
 //            [self corp];
 //        }
-    }
 }
 
 - (void)initCollectionView {
@@ -360,15 +409,80 @@
             [self autoAdjustmentFilters];
         }];
     }
-    
+}
+
+- (void)saveChangedImageToPhotoLibrary {
     PHContentEditingInputRequestOptions * options = [[PHContentEditingInputRequestOptions alloc] init];
-    
+    options.canHandleAdjustmentData = ^BOOL(PHAdjustmentData * _Nonnull adjustmentData) {
+        NSLog(@"formatIdentifier:%@,formatVersion:%@", adjustmentData.formatIdentifier, adjustmentData.formatVersion);
+        return YES;
+    };
+    options.progressHandler = ^(double progress, BOOL * _Nonnull stop) {
+        NSLog(@"图像编辑进度:%.2f (Stop:%d)", progress, (int)*stop);
+        if (*stop) {
+            NSLog(@"图像保存完成");
+        }
+    };
+    weakly(self);
     [_model.asset requestContentEditingInputWithOptions: options completionHandler:^(PHContentEditingInput * _Nullable contentEditingInput, NSDictionary * _Nonnull info) {
         if (!contentEditingInput) {
             return ;
         }
-        NSLog(@"ImageURL:%@", contentEditingInput.fullSizeImageURL);
+        NSData * data = [weakself.fliter.name dataUsingEncoding:NSUTF8StringEncoding];
+        PHContentEditingOutput * output = [[PHContentEditingOutput alloc] initWithContentEditingInput:contentEditingInput];
+        output.adjustmentData = [[PHAdjustmentData alloc] initWithFormatIdentifier:@"com.peng.pl" formatVersion:@"1.0" data:data];
+        
+//        NSLog(@"ImageURL:%@", contentEditingInput.fullSizeImageURL);
+        [weakself applyPhotoFilter:weakself.fliter input:contentEditingInput output:output];
+        
+        [PHPhotoLibrary.sharedPhotoLibrary performChanges:^{
+            PHAssetChangeRequest * request = [PHAssetChangeRequest changeRequestForAsset:weakself.model.asset];
+            request.contentEditingOutput = output;
+        } completionHandler:^(BOOL success, NSError * _Nullable error) {
+            if (success) {
+                strongly(self);
+                [strongself.model resetImages];
+            }
+            if (error) {
+                NSLog(@"无法保存修改图像");
+            }
+        }];
     }];
+}
+
+- (void)applyPhotoFilter:(CIFilter *)filter input:(PHContentEditingInput * )input output:(PHContentEditingOutput *)output {
+    
+    CIImage * inputImage = [CIImage imageWithContentsOfURL:input.fullSizeImageURL];
+    if (!inputImage) {
+        return;
+    }
+    
+    CIImage * outputImage = filter.outputImage;
+    [filter setValue:inputImage forKey:kCIInputImageKey];
+    outputImage = [[CIImage alloc] initWithImage:self.imageView.image];
+    
+    static CIContext * ciContext;
+    if (!ciContext) { ciContext = [CIContext context]; }
+    
+    NSURL * url = output.renderedContentURL;
+    NSError * error;
+    BOOL isSuccess = false;
+    // 写入文件。
+    if (@available(iOS 10.0, *)) {
+        isSuccess = [ciContext writeJPEGRepresentationOfImage:outputImage toURL:url colorSpace:inputImage.colorSpace options:@{} error:&error];
+    } else
+    {
+        // Fallback on earlier versions
+        CGImageRef cgImage = [ciContext createCGImage:outputImage fromRect:inputImage.extent];
+        UIImage * image = [UIImage imageWithCGImage:cgImage];
+        CGImageRelease(cgImage);
+
+        NSData * imageData = UIImageJPEGRepresentation(image, 1);
+        isSuccess = [imageData writeToURL:url options:0 error:&error];
+    }
+    if (!isSuccess) {
+        NSLog(@"图像写入文件失败(%@)",url);
+    }
 }
 
 - (void)updateStaticImageCompletion:(void(^)(UIImage * image, NSDictionary * info))completion {
@@ -549,6 +663,7 @@
         NSLog(@"无法创建%@过滤器", filterName);
         return nil;
     }
+    [filter setDefaults];
     
     NSArray * inputKeys = [filter inputKeys];
     if ([inputKeys containsObject:kCIInputImageKey]) {
@@ -558,9 +673,10 @@
         }
         [filter setValue: ciImage forKey:kCIInputImageKey];
     }
+    
     NSString * inputImageKey = @"inputImage2";
     if ([inputKeys containsObject:inputImageKey]) {
-        UIImage * image2 = [UIImage imageNamed:@"inputImage2"];
+        UIImage * image2 = [UIImage imageNamed:@"inputImage3"];
         [filter setValue:[[CIImage alloc] initWithImage:image2] forKey:inputImageKey];
     }
     inputImageKey = @"inputTargetImage";
@@ -584,18 +700,20 @@
         UIImage * image2 = [UIImage imageNamed:@"maskImage"];
         [filter setValue:[[CIImage alloc] initWithImage:image2] forKey:inputImageKey];
     }
-    [filter setDefaults];
     
     if ([filterName isEqualToString:@"CIColorCube"]) {
-        filter = [HYPFilterHelper chromaKeyFilterHuesFrom:210/360.0 to:240/360.0];
+        int dimension = 64;
+        NSData * data = colorCubeTableCreateWithDimension(64, 210/360.0, 240/360.0);
+        [filter setValue:@(dimension) forKey:@"inputCubeDimension"];
+        [filter setValue:data forKey:@"inputCubeData"];
         [filter setValue:ciImage forKey:kCIInputImageKey];
     }
     if([filterName isEqualToString:@"CIVignetteEffect"]){
-        CGSize size = image.size;
-        CIVector *vct = [[CIVector alloc] initWithX:size.width * image.scale/2 Y:size.height * image.scale/2];
+        CGSize size = ciImage.extent.size;
+        CIVector *vct = [[CIVector alloc] initWithX:size.width/2 Y:size.height/2];
         [filter setValue:vct forKey:kCIInputCenterKey];
         
-        CGFloat R = MIN(size.width, size.height) * image.scale * 0.375;
+        CGFloat R = MIN(size.width, size.height) * 0.375;
         [filter setValue:[NSNumber numberWithFloat:R] forKey:kCIInputRadiusKey];
         
         [filter setValue:[NSNumber numberWithFloat:0.95] forKey:kCIInputIntensityKey];
@@ -628,8 +746,10 @@
     }
     [filter setDefaults];
     
-    if ([filterName isEqualToString:@"CIColorCube"]) {
-        filter = [HYPFilterHelper chromaKeyFilterHuesFrom:210/360.0 to:240/360.0];
+    if ([filterName isEqualToString:@"CIColorCube"]) {        
+        NSData * data = colorCubeTableCreateWithDimension(10, 0.2, 0.4);
+        [filter setValue:@(10) forKey:@"inputCubeDimension"];
+        [filter setValue:data forKey:@"inputCubeData"];
         [filter setValue:ciImage forKey:kCIInputImageKey];
     }
     if([filterName isEqualToString:@"CIVignetteEffect"]){
@@ -814,6 +934,28 @@ float lerp_map(float value, float minimum, float maximum, float lowwerBounds, fl
     self.scrollView.contentInset = UIEdgeInsetsMake(minDistance.y, minDistance.x, maxDistance.y, maxDistance.x);
     
 }
+
+- (void)updateImageWithFilter:(CIFilter *)filter {
+    CIImage * outputImage = filter.outputImage;
+    CGRect extent = outputImage.extent;
+    if (extent.size.width > pow(10, 4)) {
+        CGRect inputExtent = CGRectZero;
+        if (self.model.originImage) {
+            inputExtent.size = self.model.originImage.size;
+        } else {
+            inputExtent.size = CGSizeMake(1000, 1000);
+            CGFloat ratio = extent.size.width / extent.size.height;
+            extent.size.width = extent.size.height * ratio;
+            extent.origin = CGPointMake(-500 * ratio, -500);
+        }
+        outputImage = [outputImage imageByCroppingToRect:extent];
+    }
+    UIImage * image;
+//    image = [UIImage imageWithCIImage:outputImage];
+    image = CIImageToUIImage(outputImage);
+    self.imageView.image = image;
+}
+
 #pragma mark - ScrollView delegate
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
     if (scrollView == _scrollView) {
@@ -845,7 +987,16 @@ float lerp_map(float value, float minimum, float maximum, float lowwerBounds, fl
     
     NSString * filterName = [self.dataSource objectAtIndex:indexPath.row];
     
-    CIImage *output = [self defaultFilter:filterName withImage:self.model.image].outputImage;// [self imageByFilter:filterName withImage:self.model.image];
+    CIFilter * filter = [self defaultFilter:filterName withImage:self.model.image];
+    CIImage *output = filter.outputImage;
+    // [self imageByFilter:filterName withImage:self.model.image];
+    CGRect extent = output.extent;
+    if (extent.size.width > pow(10, 4)) {
+        CGFloat ratio = extent.size.width / extent.size.height;
+        extent.size = CGSizeMake(500 * ratio, 500);
+        extent.origin = CGPointMake(-200 * ratio, -200);
+        output = [output imageByCroppingToRect:extent];
+    }
     
     cell.imageView.image = nil;
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -853,7 +1004,7 @@ float lerp_map(float value, float minimum, float maximum, float lowwerBounds, fl
         cell.imageView.image = image;
     });
     
-    NSString * text = filterName;
+    NSString * text = [filter.attributes valueForKey:kCIAttributeFilterDisplayName] ? : filterName;
     NSString * subString = @"CIColor";
     NSRange range = [text rangeOfString:subString];
     if ([text hasPrefix:subString]) {
@@ -869,14 +1020,6 @@ float lerp_map(float value, float minimum, float maximum, float lowwerBounds, fl
     return cell;
 }
 
-- (void)updateImageWithFilter:(CIFilter *)filter {
-    CIImage * outputImage = filter.outputImage;
-    UIImage * image;
-//    image = [UIImage imageWithCIImage:outputImage];
-    image = CIImageToUIImage(outputImage);
-    self.imageView.image = image;
-}
-
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     
     NSString * filterName = [self.dataSource objectAtIndex:indexPath.row];
@@ -885,12 +1028,9 @@ float lerp_map(float value, float minimum, float maximum, float lowwerBounds, fl
 //    self.imageView.image = CIImageToUIImage(output);
     
     CIFilter * filter;
-//    filter = [CIFilter filterWithName:filterName];
-//    [filter setValue:[[CIImage alloc] initWithImage:self.model.originImage] forKey:kCIInputImageKey];
-//    [filter setDefaults];
     filter = [self defaultFilter:filterName withImage:self.model.originImage];
-    self.imageView.image = CIImageToUIImage([filter outputImage]);
-    
+    [self updateImageWithFilter:filter];
+    self.fliter = filter;
     FilterAttributesController * vc = [[FilterAttributesController alloc] init];
     vc.filter = filter;
     vc.modalPresentationStyle = UIModalPresentationFormSheet;
@@ -914,5 +1054,26 @@ float lerp_map(float value, float minimum, float maximum, float lowwerBounds, fl
     // Pass the selected object to the new view controller.
 }
 */
+
+@end
+
+@implementation ToolBar
+
+#pragma mark - CollectionView delegate and dataSource
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.dataSource? self.dataSource.count:0;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    HYPCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"ReuseIdentifier" forIndexPath:indexPath];
+    
+    id item = [self.dataSource objectAtIndex:indexPath.row];
+    return cell;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+
+}
+
 
 @end

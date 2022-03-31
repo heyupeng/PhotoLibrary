@@ -562,7 +562,7 @@
     }
     
     if ([filterName isEqualToString:@"CIColorCube"]) {
-        filter = [HYPFilterHelper chromaKeyFilterHuesFrom:210/360.0 to:240/360.0];
+        filter = [HYPFilterHelper chromaKeyFilterWithDimension:64 HuesFrom:210/360.0 to:240/360.0];
         [filter setValue:ciImage forKey:kCIInputImageKey];
     }
     if([filterName isEqualToString:@"CIVignetteEffect"]){
