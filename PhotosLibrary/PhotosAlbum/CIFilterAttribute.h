@@ -31,7 +31,7 @@ FOUNDATION_EXTERN CIVector * CIVectorCreateWithCIVector(CIVector * vector, CGFlo
 @property (nonatomic, strong) id attMaxValue;
 @property (nonatomic, strong) id attMinValue;
 
-@property (nonatomic, strong) id value;
+@property (nonatomic, strong, nullable) id value;
 
 @property (nonatomic, readonly) NSUInteger elementCount;
 @property (nonatomic, readonly) id sliderMaxValue;
@@ -40,6 +40,8 @@ FOUNDATION_EXTERN CIVector * CIVectorCreateWithCIVector(CIVector * vector, CGFlo
 - (instancetype)initWithInputKey:(NSString *)inputKey attribute:(NSDictionary *)attribute extent:(CGRect)extent;
 
 - (void)updateValue:(CGFloat)floatValue atElementIndex:(NSUInteger)index;
+
+- (void)resetValue;
 
 @end
 

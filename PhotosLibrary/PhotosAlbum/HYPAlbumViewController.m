@@ -37,6 +37,7 @@
 //    if (_postImageView) {
         frame.origin.x = self.indentationLevel * self.indentationWidth;
         frame.size.width = frame.size.height;
+        frame = CGRectInset(frame, 5, 5);
         self.postImageView.frame = frame;
 //    }
     
@@ -61,6 +62,7 @@
 }
 @end
 
+static const CGFloat AblumCellDefaultHeight = 80.0;
 
 #pragma mark - HYPAlbumViewController
 @interface HYPAlbumViewController ()<PHPhotoLibraryChangeObserver, UITableViewDelegate, UITableViewDataSource>
@@ -224,7 +226,7 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 60;
+    return AblumCellDefaultHeight;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

@@ -313,18 +313,13 @@ NSString * durationSecondToMinAndSec(NSTimeInterval duration) {
     CGSize size = CGSizeZero;
     size = [self imageTargetSize];
     
-    if (model.image) {
-        cell.imageView.image = model.image;
+    if (model.postImage) {
+        cell.imageView.image = model.postImage;
     } else {
-        [model requestImageWithSize:size compeletion:^(UIImage * _Nonnull image, NSDictionary * _Nonnull info) {
-            if (!image) { return ;}
-            if ([[info objectForKey:PHImageResultIsDegradedKey] intValue] == 0) {
-                if ([info objectForKey:@"PHImageFileURLKey"]) {
-                    model.originImage = image;
-                }
-            }
-            model.image = image;
-            cell.imageView.image = image;
+        [model requestPostImageWithSize:size compeletion:^(HYPAssetModel * _Nonnull model) {
+            if (!model.postImage) { return ;}
+            // 可做映射缓存判断，提升性能。
+            cell.imageView.image = model.postImage;
         }];
     }
     

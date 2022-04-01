@@ -37,6 +37,8 @@ UIKIT_EXTERN UIImage * CIImageToUIImage(CIImage * ciImage);
 
 @interface HYPFilterHelper : NSObject
 
++ (NSArray<NSString *> *)customFilterNames;
+
 + (NSArray *)colorEffectFilterNames;
 
 + (CIFilter

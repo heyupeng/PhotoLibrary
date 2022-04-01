@@ -38,9 +38,9 @@
         NSLog(@"选择完成");
         if (items.count < 1) return;
         HYPAssetModel * model = items[0];
-        NSLog(@"\n%@,\n%@", model.originImage, model.image);
+        NSLog(@"\n%@,\n%@", model.previewImage, model.postImage);
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.imageView.image = model.originImage ? : model.image;
+            self.imageView.image = model.previewImage ? : model.postImage;
         });
         
     };
@@ -111,6 +111,17 @@
             // 保存视频
             UISaveVideoAtPathToSavedPhotosAlbum(videoPath, self, @selector(video:didFinishSavingWithError:contextInfo:), nil);
         }
+    }
+    else {
+        UIImage * image;
+        if (picker.allowsEditing) {
+            image = [info objectForKey:UIImagePickerControllerEditedImage];
+        } else {
+            image = [info objectForKey:UIImagePickerControllerOriginalImage];
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.imageView.image = image;
+        });
     }
 }
 

@@ -243,8 +243,6 @@ static NSString * VideoCellReuseIdentifier = @"VideoCellReuseIdentifier";
 
 @property (nonatomic) NSUInteger maxSelectedNumber;
 
-@property (nonatomic, strong) PHCachingImageManager * imageManager;
-
 // Nav Bar
 @property (nonatomic, strong) UIView * navBar;
 @property (nonatomic, strong) UIButton * rightBtn;
@@ -328,7 +326,6 @@ static NSString * VideoCellReuseIdentifier = @"VideoCellReuseIdentifier";
     self.statusBarHidden = NO;
     
     [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
-    self.imageManager = [[PHCachingImageManager alloc] init];
     
     [self initCollectionView];
     
@@ -628,32 +625,19 @@ static NSString * VideoCellReuseIdentifier = @"VideoCellReuseIdentifier";
     if (model.asset.mediaType == PHAssetMediaTypeVideo) {
         
     }
-    
-    if (model.originImage) {
-        cell.SrollImageView.imageView.image = model.originImage;
+    model.asset.sourceType;
+    if (model.previewImage) {
+        cell.SrollImageView.imageView.image = model.previewImage;
     } else {
         CGSize size = CGSizeZero;
         CGFloat pixelRatio = model.asset.pixelWidth / (CGFloat)model.asset.pixelHeight;
         CGFloat itemWidth = CGRectGetWidth(cell.frame);
         size = CGSizeMake(itemWidth * 2, itemWidth * 2/pixelRatio);
-
-        PHImageRequestOptions * options = [[PHImageRequestOptions alloc] init];
-        options.resizeMode = PHImageRequestOptionsResizeModeFast;
-        options.networkAccessAllowed = true;
         
-        [self.imageManager requestImageForAsset:model.asset targetSize:size contentMode:PHImageContentModeAspectFill options:options resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
-            if (!result) {
-//                cell.imageView.image = model.image;
-                return ;
+        [model requestPreviewImageWithSize:size completion:^(HYPAssetModel * _Nonnull model) {
+            if (model.previewImage) {
+                cell.SrollImageView.imageView.image = model.previewImage;
             }
-            if ([[info objectForKey:PHImageResultIsDegradedKey] intValue] == 0) {
-                model.previewImage = result;
-                if ([info objectForKey:@"PHImageFileURLKey"]) {
-                    model.originImage = result;
-                }
-                model.originImage = result;
-            }
-            cell.SrollImageView.imageView.image = result;
         }];
     }
     

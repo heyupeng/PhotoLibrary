@@ -58,10 +58,10 @@ CIVector * CIVectorCreateWithCIVector(CIVector * vector, CGFloat value, NSUInteg
         _attMaxValue = [attribute objectForKey:kCIAttributeMax];
         _attMinValue = [attribute objectForKey:kCIAttributeMin];
         
-        if ([_attType isEqualToString:kCIAttributeTypePosition]) {
+//        if ([_attType isEqualToString:kCIAttributeTypePosition]) {
             // kCIAttributeTypePosition 
             [self setupSliderValueForPositionWithExtent:extent];
-        }
+//        }
         
         _value = _attDefaultValue;
     }
@@ -69,14 +69,23 @@ CIVector * CIVectorCreateWithCIVector(CIVector * vector, CGFloat value, NSUInteg
 }
 
 - (void)setupSliderValueForPositionWithExtent:(CGRect)extent {
+    if (![_attType isEqualToString:kCIAttributeTypePosition] &&
+        ! [_attType isEqualToString:kCIAttributeTypeOffset] &&
+        ! [_attType isEqualToString:kCIAttributeTypePosition3]
+        ) {
+        return;
+    }
+    
     CGSize size = extent.size;
     if (CGSizeEqualToSize(size, CGSizeZero)) {
         size = CGSizeMake(300, 300);
     }
-    CIVector * max = [CIVector vectorWithX:size.width Y:size.height];
-    _attSliderMaxValue = max;
+    CGFloat x = size.width, y = size.height, z = 0;
+    if ([_attType isEqualToString:kCIAttributeTypePosition3]) z = 500;
     
-    CIVector * min = [CIVector vectorWithX:-50 Y:-50];
+    CIVector * max = [CIVector vectorWithX:x Y:y Z:z];
+    CIVector * min = [CIVector vectorWithX:-50 Y:-50 Z:z * -1];
+    _attSliderMaxValue = max;
     _attMinValue = min;
 }
 
@@ -85,10 +94,12 @@ CIVector * CIVectorCreateWithCIVector(CIVector * vector, CGFloat value, NSUInteg
     id newValue;
     
     if ([className isEqualToString:NSStringFromClass(NSNumber.class)]) {
-        if ([_attType isEqualToString:kCIAttributeTypeScalar]) {
-            newValue = [NSNumber numberWithFloat:floatValue];
-        } else {
+        if ([_attType isEqualToString:kCIAttributeTypeCount] ||
+            [_attType isEqualToString:kCIAttributeTypeInteger]
+            ) {
             newValue = [NSNumber numberWithInteger:(NSInteger)floatValue];
+        } else {
+            newValue = [NSNumber numberWithFloat:floatValue];
         }
     }
     else if ([className isEqualToString:@"CIVector"]) {
@@ -97,6 +108,10 @@ CIVector * CIVectorCreateWithCIVector(CIVector * vector, CGFloat value, NSUInteg
         
     }
     self.value = newValue;
+}
+
+- (void)resetValue {
+    _value = _attDefaultValue;
 }
 
 - (NSUInteger)elementCount {

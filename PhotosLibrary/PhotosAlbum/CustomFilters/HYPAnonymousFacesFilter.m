@@ -101,7 +101,7 @@ const NSString * kAnonymousFacesFilterDisplayName = @"人脸像素化";
 + (void)initialize
 {
     [CIFilter registerFilterName: @"HYPAnonymousFacesFilter"
-                     constructor: self
+                     constructor: (id<CIFilterConstructor>)self
                  classAttributes:
      @{kCIAttributeFilterDisplayName : kAnonymousFacesFilterDisplayName,
        kCIAttributeFilterCategories : @[

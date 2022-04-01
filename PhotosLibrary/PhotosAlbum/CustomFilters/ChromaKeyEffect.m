@@ -89,6 +89,9 @@ CGFloat getHueFromRGB(CGFloat r, CGFloat g, CGFloat b) {
 + (NSDictionary *)customAttributes
 {
     return @{kCIAttributeFilterDisplayName: @"色值删除",
+             kCIAttributeFilterCategories: @[
+               kCICategoryColorEffect,
+             ],
              @"inputCubeDimension" :  @{
                  kCIAttributeType      : kCIAttributeTypeCount,
                  kCIAttributeDefault   : @2,

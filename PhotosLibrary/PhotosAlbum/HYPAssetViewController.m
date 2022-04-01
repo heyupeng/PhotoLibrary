@@ -712,7 +712,7 @@
 
     NSString * filterName = [self.dataSource objectAtIndex:indexPath.row];
     
-    CIImage *output = [self imageByFilter:filterName withImage:self.model.image];
+    CIImage *output = [self imageByFilter:filterName withImage:self.model.postImage];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         UIImage * image = CIImageToUIImage(output);

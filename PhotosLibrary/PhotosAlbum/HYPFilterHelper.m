@@ -29,15 +29,19 @@
 
 @implementation HYPFilterHelper
 
-+ (NSArray *)colorEffectFilterNames {
-    return [CIFilter filterNamesInCategory: kCICategoryColorEffect];;
-    
-    NSArray * filterNames = @[
++ (NSArray<NSString *> *)customFilterNames {
+    return @[
         @"ChromaKeyEffect",
         @"MyHazeFilter",
         @"HYPAnonymousFacesFilter",
-        @"HYPOldFilm",
-        
+        @"HYPOldFilm"
+    ];
+}
+
++ (NSArray *)colorEffectFilterNames {
+    return [CIFilter filterNamesInCategory: kCICategoryColorEffect];
+    
+    NSArray * filterNames = @[
         @"CIColorCrossPolynomial",
         @"CIColorCube",
         @"CIColorCubesMixedWithMask",
@@ -136,7 +140,8 @@ UIImage * CIImageToUIImage(CIImage * ciImage) {
     }
     
     CGImageRef imageRef = [__ciContext createCGImage:ciImage fromRect:ciImage.extent];
-    UIImage * image = [UIImage imageWithCGImage:imageRef];
+    CGFloat scale = UIScreen.mainScreen.scale;
+    UIImage * image = [UIImage imageWithCGImage:imageRef scale:scale orientation:0];
     CGImageRelease(imageRef);
     return image;
 }

@@ -17,6 +17,7 @@
 #define UICellReuseIdentifier0 @"UICellReuseIdentifier0"
 #define UICellReuseIdentifier1 @"UICellReuseIdentifier1"
 
+#import "GeometryExtension.h"
 #import "UITableViewCell+AccessoryButton.h"
 
 @interface NSObject (JSONString)
@@ -54,6 +55,11 @@
 
 @end
 
+typedef NS_ENUM(NSUInteger, CellAccessoryActionType) {
+    CellAccessoryActionTypeDefault,
+    CellAccessoryActionTypeReset,
+};
+
 @interface AttributeCell : UITableViewCell
 
 @property (nonatomic, weak) IBOutlet UILabel * titleLabel;
@@ -62,9 +68,31 @@
 
 @property (weak, nonatomic) IBOutlet UIImageView *rightImageView;
 
+@property (nonatomic) CellAccessoryActionType accessoryActionType;
 @end
 
 @implementation AttributeCell
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [super touchesBegan:touches withEvent:event];
+}
+
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    UIView * view = [super hitTest:point withEvent:event];
+    if (view) {
+        [self setupAccessoryActionType];
+    }
+    return view;
+}
+
+- (void)setupAccessoryActionType {
+    self.accessoryActionType = CellAccessoryActionTypeDefault;
+}
+
+- (IBAction)resetAccessoryAction:(UIButton *)sender {
+    self.accessoryActionType = CellAccessoryActionTypeReset;
+    [self sendAccessoryButtonTappedActionToTableView:sender forEvent:nil];
+}
 
 @end
 
@@ -140,6 +168,7 @@
 @property (nonatomic, weak) HYPTopBar * topBar;
 
 @property (nonatomic, weak) UIImageView * imageView;
+@property (nonatomic, getter=isOpenLight) BOOL openLight; // 控制 imageView 背景色
 
 @end
 
@@ -196,10 +225,11 @@
     [self initTopBar];
     
     UIImageView * imageView = [[UIImageView alloc] init];
-    imageView.backgroundColor = UIColor.whiteColor;
     _imageView = imageView;
     _imageView.contentMode = UIViewContentModeScaleAspectFit;
     [self.view addSubview:_imageView];
+    
+    self.openLight = NO;
 }
 
 - (UIEdgeInsets)yp_safeAreaInsets {
@@ -250,6 +280,7 @@
     NSMutableArray * dataSource = [[NSMutableArray alloc] initWithCapacity:inputKeys.count];
     
     CGRect extent = self.view.bounds;
+    extent.size = CGSizeFromScale(extent.size, UIScreen.mainScreen.scale);
     if ([inputKeys containsObject:kCIInputImageKey]) {
         CIImage * inputImage = [_filter valueForKey:kCIInputImageKey];
         extent = inputImage.extent;
@@ -309,12 +340,8 @@
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     [super touchesEnded:touches withEvent:event];
-    if ([self.imageView.backgroundColor isEqual:UIColor.whiteColor]) {
-        self.imageView.backgroundColor = UIColor.blackColor;
-    }
-    else {
-        self.imageView.backgroundColor = UIColor.whiteColor;
-    }
+    
+    self.openLight = !self.openLight;
 }
 
 - (void)topBarRightItemsAction:(UIBarButtonItem *)sender {
@@ -334,9 +361,8 @@
 //    CIImage * outputImage = self.filter.outputImage;
     CGRect extent = outputImage.extent;
     if (extent.size.width > pow(10, 4)) {
-        CGFloat ratio = extent.size.width / extent.size.height;
-        extent.size = CGSizeMake(1000 * ratio, 1000);
-        extent.origin = CGPointZero;//
+        extent = self.imageView.bounds;
+        extent.size = CGSizeFromScale(extent.size, UIScreen.mainScreen.scale);
 //        extent.origin = CGPointMake(extent.size.width * -0.5, extent.size.width * 0.5);
         outputImage = [outputImage imageByCroppingToRect:extent];
     }
@@ -354,7 +380,7 @@
         }
         if (items.count < 1) return;
         HYPAssetModel * model = items[0];
-        UIImage * image = model.originImage ? : model.image;
+        UIImage * image = model.previewImage ? : model.postImage;
         completionhandler(isSuccess, @[image]);
     };
     
@@ -362,6 +388,17 @@
     nav.navigationBar.barStyle = UIBarStyleBlack;
     nav.modalPresentationStyle = UIModalPresentationFullScreen;
     [self presentViewController:nav animated:YES completion:nil];
+}
+
+#pragma mark setter and getter
+- (void)setOpenLight:(BOOL)openLight {
+    _openLight = openLight;
+    if (!_openLight) {
+        self.imageView.backgroundColor = UIColor.blackColor;
+    }
+    else {
+        self.imageView.backgroundColor = UIColor.whiteColor;
+    }
 }
 
 #pragma mark - Table view data source
@@ -408,6 +445,8 @@
         }
         else if ([att.attClassName isEqualToString:@"CIImage"] && att.value) {
             cell.rightImageView.image = CIImageToUIImage(att.value);
+            CGSize size = CGSizeFromScale(cell.rightImageView.image.size, cell.rightImageView.image.scale);
+            cell.descLabel.text = [descText stringByAppendingFormat:@"(%.0fx%.0f)", size.width, size.height ];
         }
         return cell;
     } else {
@@ -511,6 +550,15 @@
     CIFilterAttribute * att = self.dataSource[indexPath.section];
     
     if (indexPath.row == 0) {
+        AttributeCell * cell = [tableView cellForRowAtIndexPath:indexPath];
+        CellAccessoryActionType actionType = cell.accessoryActionType;
+        if (actionType == CellAccessoryActionTypeReset) {
+            [att resetValue];
+//            cell.imageView.image = nil;
+            [tableView reloadSections:[NSIndexSet indexSetWithIndex:indexPath.section] withRowAnimation:UITableViewRowAnimationNone];
+            [self didChangeAttribute:att];
+            return;
+        }
         UIAlertController * ac = [UIAlertController alertControllerWithTitle:@"" message:att.attribute.description preferredStyle:UIAlertControllerStyleAlert];
         
         [ac addAction:[UIAlertAction actionWithTitle:@"知道了" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {

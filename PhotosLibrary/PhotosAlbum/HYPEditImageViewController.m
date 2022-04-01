@@ -90,7 +90,11 @@
 @property (nonatomic, strong) UIImage * inputImage;
 @property (nonatomic, strong) UIImage * outputImage;
 
-@property (nonatomic, strong) CIFilter * fliter;
+@property (nonatomic, strong) CIFilter * filter;
+// 资源修改状态。默认 0，已修改 1，未保存 2。
+@property (nonatomic) NSInteger modifyState;
+
+@property (nonatomic, strong) UIButton * filterSettingsButton;
 
 @end
 
@@ -138,7 +142,7 @@
     if (self.navigationController.childViewControllers.count == 1) {
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"返回" style:UIBarButtonItemStylePlain target:self action:@selector(topBarLeftItemsAction:)];
     }
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"保存" style:UIBarButtonItemStylePlain target:self action:@selector(topBarRightItemsAction:)];
+    [self setupNavigationBarRightItem];
     
     UIView * view = [[UIView alloc] init];
     view.frame = self.view.bounds;
@@ -179,6 +183,43 @@
     
 }
 
+- (void)setupNavigationBarRightItem {
+    
+    PHAsset * asset = self.model.asset;
+    if (_modifyState == 0 &&
+        asset.modificationDate &&
+        ![asset.creationDate isEqualToDate:asset.modificationDate]
+        ) {
+        _modifyState = 1;
+    }
+    
+    NSString * title = @"";
+    NSInteger tag = 0;
+    switch (_modifyState) {
+        case 1: {
+            title = @"复原";
+        }
+            break;
+        case 2: {
+            title = @"保存";
+        }
+            break;
+        default:
+            title = @"";
+            break;
+    }
+    
+    if (!self.navigationItem.rightBarButtonItem) {
+        UIBarButtonItem * item1 = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStylePlain target:self action:@selector(topBarRightItemsAction:)];
+        item1.tag = _modifyState;
+        self.navigationItem.rightBarButtonItem = item1;
+    }
+    else {
+        self.navigationItem.rightBarButtonItem.title = title;
+        self.navigationItem.rightBarButtonItem.tag = tag;
+    }
+}
+
 - (void)topBarLeftItemsAction:(UIBarButtonItem *)sender {
     if (self.navigationController) {
         if (self.navigationController.childViewControllers.count > 1) {
@@ -194,7 +235,16 @@
 }
 
 - (void)topBarRightItemsAction:(UIBarButtonItem *)sender {
-    [self saveChangedImageToPhotoLibrary];
+    switch (_modifyState) {
+        case 1:
+            [self revertPhotoLibraryAssetToOriginal];
+            break;
+        case 2:
+            [self saveChangedImageToPhotoLibrary];
+            break;
+        default:
+            break;
+    }
 }
 
 - (CGRect)toolBarRectWithBounds:(CGRect)bounds {
@@ -231,7 +281,7 @@
     [toolBarContentViw addSubview:buttonContentView];
     
     // 3
-    NSArray * items = @[@"Blur", @"Adjustment", @"Effect", @"HalftoneEffect", @"DistortionEffect", @"Generator", @"Stylize", @"Transition", ];
+    NSArray * items = @[@"CTM", @"模糊效果", @"颜色调整", @"颜色效果", @"屏幕效果", @"扭曲效果", @"生成器", @"风格化", @"过渡", ];
     NSMutableArray * btns = [NSMutableArray new];
     CGFloat left = 5;
     for (int i = 0; i < items.count; i ++) {
@@ -247,7 +297,7 @@
         
         UIButton * btn = [UIButton buttonWithType:UIButtonTypeCustom];
         btn.frame = textRect;
-        btn.tag = i + 1024;
+        btn.tag = i + 1023;
         btn.titleLabel.font = [UIFont systemFontOfSize:12];
         
         [btn setTitle:item forState:UIControlStateNormal];
@@ -267,6 +317,11 @@
     NSLog(@"Tool bar index:%ld", index);
     
     switch (index) {
+        case -1: {
+            NSArray * names = [HYPFilterHelper customFilterNames];
+            [self filterEffectBrowser:names];
+        }
+            break;
         case 0: {
             NSArray * names = [CIFilter filterNamesInCategory:kCICategoryBlur];
             [self filterEffectBrowser:names];
@@ -328,12 +383,24 @@
     CGRect frame = CGRectMake(0, 0, CGRectGetWidth(self.view.bounds), width);
     frame.origin.y = [self toolBarRectWithBounds:self.view.bounds].origin.y - width;
     UICollectionView * collectionView = [[UICollectionView alloc] initWithFrame:frame collectionViewLayout:layout];
-    collectionView.backgroundColor = [UIColor clearColor];
+    collectionView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.5];
     collectionView.dataSource = self;
     collectionView.delegate = self;
     [collectionView registerClass:[HYPCell class] forCellWithReuseIdentifier:@"ReuseIdentifier"];
     [self.view addSubview:collectionView];
     _collectView = collectionView;
+    
+    CGRect buttonFrame = CGRectMake(0, 0, 80, 44);
+    buttonFrame.origin.x = (CGRectGetWidth(self.view.bounds) - CGRectGetWidth(buttonFrame)) * 0.5;
+    buttonFrame.origin.y = CGRectGetMinY(frame) - CGRectGetHeight(buttonFrame) + 5;
+    
+    UIButton * button = [UIButton buttonWithType:UIButtonTypeCustom];
+    [button setTitle:@"滤镜设置" forState:UIControlStateNormal];
+    button.frame = buttonFrame;
+    [button addTarget:self action:@selector(filterSettingsAction:) forControlEvents:UIControlEventTouchUpInside];
+    button.hidden = YES;
+    [self.view addSubview:button];
+    _filterSettingsButton = button;
 }
 
 - (void)showEffectBrowser {
@@ -395,10 +462,10 @@
     if (_model.asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) {
         [self updatePhotoLive];
     } else {
-        if (self.model.originImage) {
+        if (self.model.previewImage) {
             self.livePhotoView.hidden = YES;
             self.imageView.hidden = NO;
-            self.inputImage = self.model.originImage;
+            self.inputImage = self.model.previewImage;
             [self autoAdjustmentFilters];
             return;
         }
@@ -411,7 +478,77 @@
     }
 }
 
+- (void)alertMessage:(NSString *)message {
+    
+    UIAlertController * av = [UIAlertController alertControllerWithTitle:@"" message:message preferredStyle:UIAlertControllerStyleAlert];
+    [av addAction:[UIAlertAction actionWithTitle:@"知道了" style:UIAlertActionStyleDefault handler:nil]];
+    
+    [self presentViewController:av animated:YES completion:nil];
+}
+
+- (void)revertPhotoLibraryAssetToOriginal {
+    weakly(self);
+    PHAsset * asset = weakself.model.asset;
+    [PHPhotoLibrary.sharedPhotoLibrary performChanges:^{
+        PHAssetChangeRequest * request = [PHAssetChangeRequest changeRequestForAsset:asset];
+        [request revertAssetContentToOriginal];
+    } completionHandler:^(BOOL success, NSError * _Nullable error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            strongly(self);
+            if (success) {
+//                [strongself.model resetImages];
+                CGSize size = strongself.model.previewImage.size;
+                [strongself.model requestPreviewImageWithSize:size completion:^(HYPAssetModel * _Nonnull model) {
+                    [strongself updateImage];
+                }];
+                size = strongself.model.postImage.size;
+                [strongself.model requestPostImageWithSize:size compeletion:nil];
+            }
+            if (error) {
+                NSLog(@"修改图像存入相册失败！");
+                [strongself alertMessage:@"修改图像存入相册失败！"];
+            }
+        });
+    }];
+}
+
+- (void)saveImageToPhotoLibrary:(UIImage *)image {
+    weakly(self);
+    [PHPhotoLibrary.sharedPhotoLibrary performChanges:^{
+        __unused PHAssetChangeRequest * request = [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+    } completionHandler:^(BOOL success, NSError * _Nullable error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            strongly(self);
+            if (success) {
+                [strongself alertMessage:@"保存成功。"];
+            }
+            if (error) {
+                NSLog(@"图像存入到相册失败！");
+                [strongself alertMessage:@"图像存入相册失败！"];
+            }
+        });
+    }];
+}
+
 - (void)saveChangedImageToPhotoLibrary {
+    if (!_model.asset) {
+        UIImage * image = self.imageView.image;
+        [self saveImageToPhotoLibrary:image];
+        return;
+    }
+    // 先拿到原图大小的最新图像。
+    if (!_model.originImage) {
+        [self updateStaticImageCompletion:^(UIImage *image, NSDictionary *info) {
+            if (!image) {
+                NSLog(@"获取原图失败");
+                return;
+            }
+            self.model.originImage = image;
+            [self saveChangedImageToPhotoLibrary];
+        }];
+        return;
+    }
+    
     PHContentEditingInputRequestOptions * options = [[PHContentEditingInputRequestOptions alloc] init];
     options.canHandleAdjustmentData = ^BOOL(PHAdjustmentData * _Nonnull adjustmentData) {
         NSLog(@"formatIdentifier:%@,formatVersion:%@", adjustmentData.formatIdentifier, adjustmentData.formatVersion);
@@ -423,48 +560,112 @@
             NSLog(@"图像保存完成");
         }
     };
+    
     weakly(self);
     [_model.asset requestContentEditingInputWithOptions: options completionHandler:^(PHContentEditingInput * _Nullable contentEditingInput, NSDictionary * _Nonnull info) {
         if (!contentEditingInput) {
             return ;
         }
-        NSData * data = [weakself.fliter.name dataUsingEncoding:NSUTF8StringEncoding];
+        NSData * data = [weakself.filter.name dataUsingEncoding:NSUTF8StringEncoding];
         PHContentEditingOutput * output = [[PHContentEditingOutput alloc] initWithContentEditingInput:contentEditingInput];
         output.adjustmentData = [[PHAdjustmentData alloc] initWithFormatIdentifier:@"com.peng.pl" formatVersion:@"1.0" data:data];
         
 //        NSLog(@"ImageURL:%@", contentEditingInput.fullSizeImageURL);
-        [weakself applyPhotoFilter:weakself.fliter input:contentEditingInput output:output];
+        [weakself applyPhotoFilter:weakself.filter input:contentEditingInput output:output];
         
         [PHPhotoLibrary.sharedPhotoLibrary performChanges:^{
             PHAssetChangeRequest * request = [PHAssetChangeRequest changeRequestForAsset:weakself.model.asset];
             request.contentEditingOutput = output;
         } completionHandler:^(BOOL success, NSError * _Nullable error) {
-            if (success) {
+            dispatch_async(dispatch_get_main_queue(), ^{
                 strongly(self);
-                [strongself.model resetImages];
-            }
-            if (error) {
-                NSLog(@"无法保存修改图像");
-            }
+                if (success) {
+                    strongself.inputImage = strongself.imageView.image;
+                    strongself.modifyState = 1;
+                    [self setupNavigationBarRightItem];
+                    
+                    CGSize size = strongself.model.postImage.size;
+                    [strongself.model resetImages];
+                    [strongself.model requestPostImageWithSize:size compeletion:nil];
+                }
+                if (error) {
+                    NSLog(@"修改图像存入相册失败！");
+                    [strongself alertMessage:@"修改图像存入相册失败！"];
+                }
+            });
         }];
     }];
 }
 
-- (void)applyPhotoFilter:(CIFilter *)filter input:(PHContentEditingInput * )input output:(PHContentEditingOutput *)output {
+- (void)configurationFilter:(CIFilter *)filter oldExtent:(CGRect)oldExtent extent:(CGRect)extent {
+    if (CGRectEqualToRect(oldExtent, extent)) {
+        return;
+    }
+    if (CGRectEqualToRect(oldExtent, CGRectZero)) {
+        return;
+    }
+    NSArray * inputKeys = filter.inputKeys;
+    NSDictionary * atts = [filter attributes];
     
-    CIImage * inputImage = [CIImage imageWithContentsOfURL:input.fullSizeImageURL];
+    CGFloat widthScale = CGRectGetWidth(extent) / CGRectGetWidth(oldExtent);
+    CGFloat heightScale = CGRectGetHeight(extent) / CGRectGetHeight(oldExtent);
+    
+    for (NSString * key in inputKeys) {
+        NSDictionary * attDict = [atts objectForKey:key];
+        NSString * attType = [attDict valueForKey:kCIAttributeType];
+        
+        if ([attType isEqualToString:kCIAttributeTypeDistance]) {
+            NSNumber * value = [filter valueForKey:key];
+            value = [NSNumber numberWithDouble:value.doubleValue * widthScale];
+            [filter setValue:value forKey:key];
+            continue;
+        }
+        if ([attType isEqualToString:kCIAttributeTypePosition] ||
+            [attType isEqualToString:kCIAttributeTypeOffset] ) {
+            CIVector * value = [filter valueForKey:key];
+            CGPoint new = [value CGPointValue];
+            new.x *= widthScale;
+            new.y *= heightScale;
+            value = [CIVector vectorWithCGPoint:new];
+            [filter setValue:value forKey:key];
+            continue;
+        }
+    }    
+}
+
+- (void)applyPhotoFilter:(CIFilter *)filter input:(PHContentEditingInput * )editingInput output:(PHContentEditingOutput *)editingOutput {
+    
+    CIImage * inputImage;
+    CIImage * outputImage;
+#if 0
+    inputImage = [[CIImage alloc] initWithImage:self.inputImage];
+#else
+    // 获取最新修改原图，而不是原图像。
+//    inputImage = [CIImage imageWithContentsOfURL:editingInput.fullSizeImageURL];
+    inputImage = [[CIImage alloc] initWithImage:self.model.originImage];
     if (!inputImage) {
         return;
     }
     
-    CIImage * outputImage = filter.outputImage;
-    [filter setValue:inputImage forKey:kCIInputImageKey];
-    outputImage = [[CIImage alloc] initWithImage:self.imageView.image];
+    if ([filter.inputKeys containsObject:kCIInputImageKey]) {
+        CIImage * oldInputImage = [filter valueForKey:kCIInputImageKey];
+        if (oldInputImage) {
+            [self configurationFilter:filter oldExtent:oldInputImage.extent extent:inputImage.extent];
+        }
+        [filter setValue:inputImage forKey:kCIInputImageKey];
+    }
+#endif
+    outputImage = filter.outputImage;
+    if (CGRectEqualToRect(CGRectInfinite, outputImage.extent)) {
+        CGRect extent = inputImage.extent;
+        outputImage = [outputImage imageByCroppingToRect:extent];
+    }
+    if (!outputImage) outputImage = [[CIImage alloc] initWithImage:self.imageView.image];
     
     static CIContext * ciContext;
     if (!ciContext) { ciContext = [CIContext context]; }
     
-    NSURL * url = output.renderedContentURL;
+    NSURL * url = editingOutput.renderedContentURL;
     NSError * error;
     BOOL isSuccess = false;
     // 写入文件。
@@ -476,7 +677,7 @@
         CGImageRef cgImage = [ciContext createCGImage:outputImage fromRect:inputImage.extent];
         UIImage * image = [UIImage imageWithCGImage:cgImage];
         CGImageRelease(cgImage);
-
+        
         NSData * imageData = UIImageJPEGRepresentation(image, 1);
         isSuccess = [imageData writeToURL:url options:0 error:&error];
     }
@@ -503,7 +704,8 @@
     };
     
     [self requestImageForAsset:_model.asset targetSize:size options:options compeletion:^(UIImage *image, NSDictionary *info) {
-        if (image && completion) {
+        self.model.originImage = image;
+        if (completion) {
             completion(image, info);
         }
         if ([info objectForKey:PHImageErrorKey]) {
@@ -560,12 +762,12 @@
         self.imageView.hidden = YES;
         self.livePhotoView.hidden = NO;
         self.livePhotoView.livePhoto = livePhoto;
-        [self.livePhotoView startPlaybackWithStyle:PHLivePhotoViewPlaybackStyleHint];
+        [self.livePhotoView startPlaybackWithStyle:PHLivePhotoViewPlaybackStyleFull];
     }];
 }
 
 - (void)autoAdjustmentFilters {
-    UIImage * originImage = self.model.originImage;
+    UIImage * originImage = self.inputImage;
     CIImage * inputImage = [[CIImage alloc] initWithImage:originImage];
     NSArray * array = [inputImage autoAdjustmentFilters];
     
@@ -731,51 +933,6 @@
     return filter;
 }
 
-
-- (CIImage *)imageByFilter:(NSString *)filterName withImage:(UIImage *)image {
-    CIFilter * filter = [CIFilter filterWithName:filterName];
-    CIImage * ciImage =  [[CIImage alloc] initWithImage:image];
-    if (!filter) {
-        NSLog(@"无法创建%@过滤器", filterName);
-        return ciImage;
-    }
-    
-    NSArray * inputKeys = [filter inputKeys];
-    if ([inputKeys containsObject:kCIInputImageKey]) {
-        [filter setValue: ciImage forKey:kCIInputImageKey];
-    }
-    [filter setDefaults];
-    
-    if ([filterName isEqualToString:@"CIColorCube"]) {        
-        NSData * data = colorCubeTableCreateWithDimension(10, 0.2, 0.4);
-        [filter setValue:@(10) forKey:@"inputCubeDimension"];
-        [filter setValue:data forKey:@"inputCubeData"];
-        [filter setValue:ciImage forKey:kCIInputImageKey];
-    }
-    if([filterName isEqualToString:@"CIVignetteEffect"]){
-        CGSize size = image.size;
-        CIVector *vct = [[CIVector alloc] initWithX:size.width * image.scale/2 Y:size.height * image.scale/2];
-        [filter setValue:vct forKey:kCIInputCenterKey];
-        
-        CGFloat R = MIN(size.width, size.height) * image.scale * 0.375;
-        [filter setValue:[NSNumber numberWithFloat:R] forKey:kCIInputRadiusKey];
-        
-        [filter setValue:[NSNumber numberWithFloat:0.95] forKey:kCIInputIntensityKey];
-    }
-    
-    if ([filterName isEqualToString:@"CIEdges"]) {
-        [filter setValue:[NSNumber numberWithFloat:5] forKey:kCIInputIntensityKey];
-        
-    }
-    
-    [self ColorEffectFilter:filter];
-    
-    [self ColorAdjustmentFilterSetDefault:filter];
-    
-    CIImage * outputImage = [filter outputImage];
-    return outputImage;
-}
-
 - (void)ColorEffectFilter:(CIFilter *)filter {
     NSString * filterName = filter.name;
     
@@ -811,7 +968,7 @@ float lerp_map(float value, float minimum, float maximum, float lowwerBounds, fl
         CIVector *maxVct = [[CIVector alloc] initWithX:0.75 Y:0.75 Z:0.75 W:0.75];
         CIVector *minVct = [[CIVector alloc] initWithX:0.25 Y:0.25 Z:0.25 W:0.25];
         [filter setValue:maxVct forKey:@"inputMaxComponents"];
-        //        [filter setValue:minVct forKey:@"inputMinComponents"];
+//        [filter setValue:minVct forKey:@"inputMinComponents"];
     }
     
     if ([filterName isEqualToString:@"CIColorControls"]) {
@@ -879,16 +1036,6 @@ float lerp_map(float value, float minimum, float maximum, float lowwerBounds, fl
     [self.collectView reloadData];
 }
 
-- (void)filter: (NSString *)filterName {
-    // Used to identify the format of the data blob (e.g. identifier "com.apple.myapp" and version "1.0")
-    NSString * formatIndentify = [[NSBundle mainBundle] bundleIdentifier];
-    NSString * formatVersion = [[NSBundle mainBundle] bundleIdentifier];
-    NSData * data = [filterName dataUsingEncoding:NSUTF8StringEncoding];
-    
-    PHAdjustmentData * adjustmentData = [[PHAdjustmentData alloc] initWithFormatIdentifier:formatIndentify formatVersion:formatVersion data:data];
-    
-}
-
 - (void)corp {
     float scale = 0.8;
     CGSize size = CGSizeFromScale(self.imageView.bounds.size, scale);
@@ -938,22 +1085,39 @@ float lerp_map(float value, float minimum, float maximum, float lowwerBounds, fl
 - (void)updateImageWithFilter:(CIFilter *)filter {
     CIImage * outputImage = filter.outputImage;
     CGRect extent = outputImage.extent;
-    if (extent.size.width > pow(10, 4)) {
+    if (CGRectEqualToRect(CGRectInfinite, extent)) {
         CGRect inputExtent = CGRectZero;
-        if (self.model.originImage) {
-            inputExtent.size = self.model.originImage.size;
+        UIImage * image = self.inputImage;
+        if (image) {
+            inputExtent.size = image.size;
         } else {
             inputExtent.size = CGSizeMake(1000, 1000);
-            CGFloat ratio = extent.size.width / extent.size.height;
-            extent.size.width = extent.size.height * ratio;
-            extent.origin = CGPointMake(-500 * ratio, -500);
         }
-        outputImage = [outputImage imageByCroppingToRect:extent];
+        
+        outputImage = [outputImage imageByCroppingToRect:inputExtent];
     }
     UIImage * image;
 //    image = [UIImage imageWithCIImage:outputImage];
     image = CIImageToUIImage(outputImage);
     self.imageView.image = image;
+    
+    self.modifyState = 2;
+    [self setupNavigationBarRightItem];
+}
+#pragma mark - action
+- (void)filterSettingsAction:(UIButton *)sender {
+    FilterAttributesController * vc = [[FilterAttributesController alloc] init];
+    vc.filter = self.filter;
+    vc.modalPresentationStyle = UIModalPresentationFormSheet;
+    weakly(self);
+    vc.FilterAttributesValueChangedBlock = ^(CIFilter * _Nonnull filter, NSDictionary * _Nonnull att) {
+        if (weakself) {
+//            NSLog(@"%@", filter);
+            [weakself updateImageWithFilter:filter];
+        }
+    };
+    
+    [self presentViewController:vc animated:YES completion:nil];
 }
 
 #pragma mark - ScrollView delegate
@@ -987,7 +1151,8 @@ float lerp_map(float value, float minimum, float maximum, float lowwerBounds, fl
     
     NSString * filterName = [self.dataSource objectAtIndex:indexPath.row];
     
-    CIFilter * filter = [self defaultFilter:filterName withImage:self.model.image];
+    UIImage * inputImage = self.model.postImage;
+    CIFilter * filter = [self defaultFilter:filterName withImage:inputImage];
     CIImage *output = filter.outputImage;
     // [self imageByFilter:filterName withImage:self.model.image];
     CGRect extent = output.extent;
@@ -1024,25 +1189,12 @@ float lerp_map(float value, float minimum, float maximum, float lowwerBounds, fl
     
     NSString * filterName = [self.dataSource objectAtIndex:indexPath.row];
     
-//    CIImage *output = [self imageByFilter:filterName withImage:self.model.originImage];
-//    self.imageView.image = CIImageToUIImage(output);
-    
     CIFilter * filter;
-    filter = [self defaultFilter:filterName withImage:self.model.originImage];
+    filter = [self defaultFilter:filterName withImage:self.inputImage];
     [self updateImageWithFilter:filter];
-    self.fliter = filter;
-    FilterAttributesController * vc = [[FilterAttributesController alloc] init];
-    vc.filter = filter;
-    vc.modalPresentationStyle = UIModalPresentationFormSheet;
-    weakly(self);
-    vc.FilterAttributesValueChangedBlock = ^(CIFilter * _Nonnull filter, NSDictionary * _Nonnull att) {
-        if (weakself) {
-//            NSLog(@"%@", filter);
-            [weakself updateImageWithFilter:filter];
-        }
-    };
+    self.filter = filter;
     
-    [self presentViewController:vc animated:YES completion:nil];
+    self.filterSettingsButton.hidden = [filter inputKeys].count > 0 ? NO: YES;
 }
 
 /*

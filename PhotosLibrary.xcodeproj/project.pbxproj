@@ -55,6 +55,7 @@
 		B803A9F127F3483000F2C881 /* maskImage.png in Resources */ = {isa = PBXBuildFile; fileRef = B803A9F027F3483000F2C881 /* maskImage.png */; };
 		B803A9FB27F5614A00F2C881 /* ChromaKeyEffect.m in Sources */ = {isa = PBXBuildFile; fileRef = B803A9FA27F5614A00F2C881 /* ChromaKeyEffect.m */; };
 		B803A9FF27F6DB6400F2C881 /* ColorConversion.m in Sources */ = {isa = PBXBuildFile; fileRef = B803A9FE27F6DB6400F2C881 /* ColorConversion.m */; };
+		B86320CC27F73DDE0095FE44 /* translucentBackgroundImage.png in Resources */ = {isa = PBXBuildFile; fileRef = B86320CB27F73DDE0095FE44 /* translucentBackgroundImage.png */; };
 		B8C09EDE26F42DD800662E32 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8C09EDD26F42DD800662E32 /* Metal.framework */; };
 		B8D5717F27F1667E007E90D5 /* FilterAttributesController.m in Sources */ = {isa = PBXBuildFile; fileRef = B8D5717D27F1667E007E90D5 /* FilterAttributesController.m */; };
 		B8D5718327F175D5007E90D5 /* AttributeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B8D5718227F175D5007E90D5 /* AttributeCell.xib */; };
@@ -160,6 +161,7 @@
 		B803A9FA27F5614A00F2C881 /* ChromaKeyEffect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChromaKeyEffect.m; sourceTree = "<group>"; };
 		B803A9FD27F6DB6400F2C881 /* ColorConversion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ColorConversion.h; sourceTree = "<group>"; };
 		B803A9FE27F6DB6400F2C881 /* ColorConversion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ColorConversion.m; sourceTree = "<group>"; };
+		B86320CB27F73DDE0095FE44 /* translucentBackgroundImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = translucentBackgroundImage.png; sourceTree = "<group>"; };
 		B8C09EDD26F42DD800662E32 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		B8D5717D27F1667E007E90D5 /* FilterAttributesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterAttributesController.m; sourceTree = "<group>"; };
 		B8D5717E27F1667E007E90D5 /* FilterAttributesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterAttributesController.h; sourceTree = "<group>"; };
@@ -207,6 +209,7 @@
 		049EB35C21AFFBC200CEFC9A /* Resource */ = {
 			isa = PBXGroup;
 			children = (
+				B86320CB27F73DDE0095FE44 /* translucentBackgroundImage.png */,
 				B803A9F027F3483000F2C881 /* maskImage.png */,
 				B803A9EC27F3463E00F2C881 /* inputImage1.png */,
 				B803A9EB27F3463E00F2C881 /* inputImage2.png */,
@@ -511,6 +514,7 @@
 				B803A9F127F3483000F2C881 /* maskImage.png in Resources */,
 				04EA25E821A8110D00405011 /* Assets.xcassets in Resources */,
 				04EA25E321A8110B00405011 /* Main.storyboard in Resources */,
+				B86320CC27F73DDE0095FE44 /* translucentBackgroundImage.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -746,7 +750,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = MK49SZ4EMK;
+				DEVELOPMENT_TEAM = MB8A8WEGM4;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/PhotosLibrary/PrefixHeader.pch";
 				INFOPLIST_FILE = PhotosLibrary/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
@@ -754,7 +758,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.sushi.PhotosLibrary;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peng.PhotosLibrary;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -773,7 +777,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.sushi.PhotosLibrary;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peng.PhotosLibrary;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

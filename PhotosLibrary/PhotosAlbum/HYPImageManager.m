@@ -96,7 +96,7 @@ static HYPImageManager * shareManager;
         PHFetchResult<PHAsset *> * result = [PHAsset fetchAssetsInAssetCollection:collection options:options];
         
         // 过滤空相集
-//        if (!_isShowEmptyAlbumCollection && result.count < 1) continue;
+        if (!_isShowEmptyAlbumCollection && result.count < 1) continue;
         
         HYPAlbumModel * albumModel = [[HYPAlbumModel alloc] init];
         albumModel.collection = collection;

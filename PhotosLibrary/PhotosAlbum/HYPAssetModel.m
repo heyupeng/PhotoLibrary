@@ -43,7 +43,14 @@
 #pragma mark - HYPAssetModel
 @implementation HYPAssetModel
 
-- (PHImageRequestID)requestImageForAsset:(PHAsset *)asset targetSize:(CGSize)size options:(PHImageRequestOptions *)options compeletion:(void(^)(UIImage * image, NSDictionary * info))compeletion {
+- (PHImageRequestID)requestImageForAsset:(PHAsset *)asset targetSize:(CGSize)size compeletion:(void(^)(UIImage * image, NSDictionary * info))compeletion {
+    /*
+     PHImageRequestOptionsDeliveryModeHighQualityFormat //client将只获得一个结果 asynchronous
+     PHImageRequestOptionsDeliveryModeFastFormat //  synchronous
+     */
+    PHImageRequestOptions * options = [[PHImageRequestOptions alloc] init];
+    options.resizeMode = PHImageRequestOptionsResizeModeFast;
+    options.networkAccessAllowed = true;
     
     PHImageRequestID requestID = [[PHCachingImageManager defaultManager] requestImageForAsset:asset targetSize:size contentMode:PHImageContentModeAspectFill options:options resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
         if (compeletion) {compeletion(result, info);}
@@ -55,15 +62,8 @@
     if (self.requestID != 0) {
         [[PHCachingImageManager defaultManager] cancelImageRequest:self.requestID];
     }
-    /*
-     PHImageRequestOptionsDeliveryModeHighQualityFormat //client将只获得一个结果 asynchronous
-     PHImageRequestOptionsDeliveryModeFastFormat //  synchronous
-     */    
-    PHImageRequestOptions * options = [[PHImageRequestOptions alloc] init];
-    options.resizeMode = PHImageRequestOptionsResizeModeFast;
-    options.networkAccessAllowed = true;
     
-    PHImageRequestID requestID = [self requestImageForAsset:self.asset targetSize:size options:options compeletion:^(UIImage *image, NSDictionary *info) {
+    PHImageRequestID requestID = [self requestImageForAsset:self.asset targetSize:size compeletion:^(UIImage *image, NSDictionary *info) {
         self.requestID = 0;
         if (completion) {
             completion(image, info);
@@ -72,8 +72,45 @@
     _requestID = requestID;
 }
 
+- (void)requestPostImageWithSize:(CGSize)size compeletion:(void(^)(HYPAssetModel * model))completion {
+//    if (self.postImage) {
+//        if (completion) { completion(self); }
+//        return;
+//    }
+    
+    weakly(self);
+    [self requestImageWithSize:size compeletion:^(UIImage * _Nonnull image, NSDictionary * _Nonnull info) {
+        strongly(self);
+        strongself.postImage = image;
+        if ([[info objectForKey:PHImageResultIsDegradedKey] intValue] == 0) {
+            if ([info objectForKey:@"PHImageFileURLKey"]) {
+                strongself.originImage = image;
+                strongself.previewImage = image;
+            }
+        }
+        if (completion) {
+            completion(strongself);
+        }
+    }];
+}
+
+- (void)requestPreviewImageWithSize:(CGSize)size completion:(void(^)(HYPAssetModel * model))completion {
+    
+    weakly(self);
+    [self requestImageWithSize:size compeletion:^(UIImage * _Nonnull image, NSDictionary * _Nonnull info) {
+        strongly(self);
+        if ([[info objectForKey:PHImageResultIsDegradedKey] intValue] == 0) {
+            strongself.previewImage = image;
+            if ([info objectForKey:@"PHImageFileURLKey"]) {
+                strongself.originImage = image;
+            }
+        }
+        if (completion) completion(strongself);
+    }];
+}
+
 - (void)resetImages {
-    self.image = nil;
+    self.postImage = nil;
     self.previewImage = nil;
     self.originImage = nil;
 }
@@ -92,7 +129,7 @@
 }
 
 // Small image
-- (void)requestrequestImageCompletion:(void(^)(UIImage * image, NSDictionary * info))completion {
+- (void)requestPostImageCompletion:(void(^)(UIImage * image, NSDictionary * info))completion {
     
     CGSize size = CGSizeMake(180, 180);
     PHImageRequestOptions * options = [[PHImageRequestOptions alloc] init];
@@ -114,7 +151,7 @@
         handler(_image);
         return;
     }
-    [self requestrequestImageCompletion:^(UIImage *image, NSDictionary *info) {
+    [self requestPostImageCompletion:^(UIImage *image, NSDictionary *info) {
         self.image = image;
         if (handler) {
             handler(image);

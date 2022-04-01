@@ -25,7 +25,7 @@
         SEL selector = NSSelectorFromString(@"_accessoryButtonAction:");
 #endif
         /* 即调用 [UIApplication sendAction:to:from:forEvent:] */
-        [sender sendAction:selector to:target forEvent:event];
+//        [sender sendAction:selector to:target forEvent:event];
         [UIApplication.sharedApplication sendAction:selector to:target from:sender forEvent:event];
     }
 }

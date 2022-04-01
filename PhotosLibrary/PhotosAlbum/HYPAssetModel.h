@@ -13,13 +13,15 @@
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - HYPAssetModel
+@class HYPAssetModel;
+
 @interface HYPAssetModel : NSObject
 
 @property (nonatomic, strong) PHAsset * asset;
 
 @property (nonatomic, strong) NSString * title;
 
-@property (nonatomic, strong, nullable) UIImage * image;
+@property (nonatomic, strong, nullable) UIImage * postImage;
 
 @property (nonatomic, strong, nullable) UIImage * previewImage;
 
@@ -33,6 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) PHImageRequestID requestID;
 
 - (void)requestImageWithSize:(CGSize)size compeletion:(void(^)(UIImage *image, NSDictionary * info))completion;
+
+- (void)requestPostImageWithSize:(CGSize)size compeletion:(nullable void(^)(HYPAssetModel * model))completion;
+- (void)requestPreviewImageWithSize:(CGSize)size completion:(nullable void(^)(HYPAssetModel * model))completion;
 
 - (void)resetImages;
 
