@@ -65,17 +65,6 @@
 
 @end
 
-@interface ToolBar : UIView
-
-@end
-
-@interface ToolBar () <UICollectionViewDelegate, UICollectionViewDataSource>
-
-@property (nonatomic, strong) UICollectionView * collectView;
-@property (nonatomic, strong) NSMutableArray * dataSource;
-
-@end
-
 @interface HYPEditImageViewController ()<UICollectionViewDelegate, UICollectionViewDataSource, UIScrollViewDelegate>
 
 @property (nonatomic, strong) UIScrollView * scrollView;
@@ -266,55 +255,30 @@
     
     CGRect frame = [self toolBarRectWithBounds:self.view.bounds];
     
-    // 1
-    UIView * toolBar = [[UIView alloc] init];
-    toolBar.frame = frame;
-    toolBar.backgroundColor = [[UIColor colorWithRed:30/255.0 green:32/255.0 blue:40/255.0 alpha:1.0] colorWithAlphaComponent:0.85];
-    [self.view addSubview:toolBar];
-    // 2
-    UIView * toolBarContentViw = [[UIView alloc] init];
-    toolBarContentViw.frame = CGRectMake(0, 0, CGRectGetWidth(frame), 49);
-    [toolBar addSubview:toolBarContentViw];
+    ToolBar * bar = [[ToolBar alloc] init];
+    bar.frame = frame;
+    bar.backgroundColor = [[UIColor colorWithRed:30/255.0 green:32/255.0 blue:40/255.0 alpha:1.0] colorWithAlphaComponent:0.85];
+    [self.view addSubview:bar];
     
-    UIScrollView * buttonContentView = [[UIScrollView alloc] init];
-    buttonContentView.frame = toolBarContentViw.bounds;
-    [toolBarContentViw addSubview:buttonContentView];
+    NSArray * barItems = @[
+        [[UITabBarItem alloc] initWithTitle:@"CTM" image:nil tag:-1],
+        [[UITabBarItem alloc] initWithTitle:@"模糊效果" image:nil tag:0],
+        [[UITabBarItem alloc] initWithTitle:@"颜色调整" image:nil tag:1],
+        [[UITabBarItem alloc] initWithTitle:@"颜色效果" image:nil tag:2],
+        [[UITabBarItem alloc] initWithTitle:@"屏幕效果" image:nil tag:3],
+        [[UITabBarItem alloc] initWithTitle:@"扭曲效果" image:nil tag:4],
+        [[UITabBarItem alloc] initWithTitle:@"生成器" image:nil tag:5],
+        [[UITabBarItem alloc] initWithTitle:@"风格化" image:nil tag:6],
+        [[UITabBarItem alloc] initWithTitle:@"过渡" image:nil tag:7],
+    ];
+    bar.items = barItems;
+    bar.delegate = (id<ToolBarDelegate>)self;
     
-    // 3
-    NSArray * items = @[@"CTM", @"模糊效果", @"颜色调整", @"颜色效果", @"屏幕效果", @"扭曲效果", @"生成器", @"风格化", @"过渡", ];
-    NSMutableArray * btns = [NSMutableArray new];
-    CGFloat left = 5;
-    for (int i = 0; i < items.count; i ++) {
-        NSString * item = [items objectAtIndex:i];
-        
-        NSDictionary * atts= @{
-            NSFontAttributeName:[UIFont systemFontOfSize:12],
-        };
-        CGRect textRect = [item boundingRectWithSize:CGSizeMake(200, 44) options:0 attributes:atts context:nil];
-        textRect = CGRectMake(left, 0, CGRectGetWidth(textRect) + 20, 44);
-        left += CGRectGetWidth(textRect);
-        textRect = CGRectInset(textRect, 5, 5);
-        
-        UIButton * btn = [UIButton buttonWithType:UIButtonTypeCustom];
-        btn.frame = textRect;
-        btn.tag = i + 1023;
-        btn.titleLabel.font = [UIFont systemFontOfSize:12];
-        
-        [btn setTitle:item forState:UIControlStateNormal];
-        [btn.titleLabel adjustsFontSizeToFitWidth];
-        [btn addTarget:self action:@selector(toolbarBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-        
-        [btns addObject:btn];
-        [buttonContentView addSubview:btn];
-    }
-    CGSize contentSize = buttonContentView.bounds.size;
-    contentSize.width = left;
-    buttonContentView.contentSize = contentSize;
 }
 
-- (void)toolbarBtnClick:(UIButton *)sender {
-    NSInteger index = sender.tag - 1024;
-    NSLog(@"Tool bar index:%ld", index);
+- (void)toolbar:(ToolBar *)toolbar didSelectItem:(__kindof UIBarItem *)item {
+    NSLog(@"toolbar did selected at %zi", toolbar.selectedIndex);
+    NSInteger index = item.tag;
     
     switch (index) {
         case -1: {
@@ -1209,23 +1173,3 @@ float lerp_map(float value, float minimum, float maximum, float lowwerBounds, fl
 
 @end
 
-@implementation ToolBar
-
-#pragma mark - CollectionView delegate and dataSource
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return self.dataSource? self.dataSource.count:0;
-}
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    HYPCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"ReuseIdentifier" forIndexPath:indexPath];
-    
-    id item = [self.dataSource objectAtIndex:indexPath.row];
-    return cell;
-}
-
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-
-}
-
-
-@end

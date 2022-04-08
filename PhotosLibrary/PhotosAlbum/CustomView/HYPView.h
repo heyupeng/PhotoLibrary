@@ -69,4 +69,26 @@ static const CGFloat UINavigationBarBackgroundEffectAlpha = 0.85;
 
 @end
 
+
+@protocol ToolBarDelegate;
+
+@interface ToolBar : UIView
+
+@property (nonatomic, weak) NSString * selectedItem;
+@property (nonatomic) NSUInteger selectedIndex;
+
+@property (nonatomic, weak) id target;
+@property (nonatomic) SEL action;
+
+@property (nonatomic, weak) id<ToolBarDelegate> delegate;
+
+@property (nonatomic, strong) NSArray<UITabBarItem *> * items;
+
+@end
+
+@protocol ToolBarDelegate<NSObject>
+@optional
+- (void)toolbar:(ToolBar *)tabBar didSelectItem:(__kindof UIBarItem *)item;
+@end
+
 NS_ASSUME_NONNULL_END

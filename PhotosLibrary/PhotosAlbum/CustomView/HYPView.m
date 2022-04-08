@@ -580,3 +580,184 @@ const NSUInteger GirdLineCount = 9;
 //    [girdLineLayer addAnimation:ani forKey:@"opacityAni"];
 }
 @end
+
+@interface ToolBar () <UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout>
+
+// Data
+//@property (nonatomic, strong) NSArray<UITabBarItem *> * dataSource;
+
+@property (nonatomic, strong) NSMutableArray * widthCache;
+
+// UI
+@property (nonatomic, strong) UICollectionView * collectView;
+
+@end
+
+@interface TextCell : UICollectionViewCell
+
+@property (nonatomic, readonly, strong) UILabel * textLabel;
+
+@end
+
+@implementation TextCell
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        [self setup];
+    }
+    return self;
+}
+
+- (void)setup {
+    UILabel * label = [[UILabel alloc] init];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.textColor = [UIColor whiteColor];
+    label.adjustsFontSizeToFitWidth = YES;
+    label.font = [UIFont systemFontOfSize:12];
+    [self.contentView addSubview:label];
+    
+    label.highlightedTextColor = UIColor.orangeColor;
+    _textLabel = label;
+}
+
+- (void)layoutSubviews {
+    CGRect frame = self.contentView.bounds;
+    _textLabel.frame = frame;
+}
+
+- (void)setHighlighted:(BOOL)highlighted {
+    [super setHighlighted:highlighted];
+}
+
+- (void)setSelected:(BOOL)selected {
+    [super setSelected:selected];
+}
+
+@end
+
+@implementation ToolBar
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) { [self setup]; }
+    return self;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    CGRect frame = self.bounds;
+    if (!CGSizeEqualToSize(frame.size, CGSizeZero)) {
+        if (@available(iOS 11.0, *)) {
+            UIEdgeInsets safeAreaInsets = self.safeAreaInsets;
+            frame.origin.x = safeAreaInsets.top;
+            frame.size.height += - safeAreaInsets.top - safeAreaInsets.bottom;
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+    self.collectView.frame = frame;
+    UICollectionViewFlowLayout * layout = (UICollectionViewFlowLayout *)self.collectView.collectionViewLayout;
+    layout.itemSize = [self itemSizeWithBounds:self.collectView.bounds];
+}
+
+- (CGSize)itemSizeWithBounds:(CGRect)bounds {
+    CGSize size = bounds.size;
+    if (!CGSizeEqualToSize(bounds.size, CGSizeZero)) {
+        float spacing = 5;
+        float width = CGRectGetWidth(bounds) - spacing * 5;
+        width /= 4.5;
+        size.width = width;
+    }
+    return size;
+}
+
+#pragma mark - setup
+- (void)setup {
+    CGRect bounds = self.bounds;
+    
+    float spacing = 5;
+    CGSize size = [self itemSizeWithBounds:bounds];
+    
+    UICollectionViewFlowLayout * layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    layout.minimumLineSpacing = spacing;
+    layout.minimumInteritemSpacing = spacing;
+    layout.sectionInset = UIEdgeInsetsMake(0, spacing, spacing, spacing);
+    layout.itemSize = size;
+    
+    UICollectionView * collectionView = [[UICollectionView alloc] initWithFrame:bounds collectionViewLayout:layout];
+    collectionView.dataSource = self;
+    collectionView.delegate = self;
+    collectionView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.0];
+    collectionView.showsHorizontalScrollIndicator = NO;
+    
+    [collectionView registerClass:[TextCell class] forCellWithReuseIdentifier:@"ReuseIdentifier"];
+    [self addSubview:collectionView];
+    
+    _collectView = collectionView;
+}
+
+#pragma mark -
+
+- (void)_didSelectIndex:(NSUInteger)index {
+    self.selectedIndex = index;
+//    if (self.target &&
+//        self.action &&
+//        [((NSObject*)self.target) respondsToSelector:self.action]
+//        ) {
+//        [((NSObject*)self.target) performSelector:self.action withObject:self withObject:@(index)];
+//    }
+    if (self.delegate && [self.delegate respondsToSelector:@selector(toolbar:didSelectItem:)]) {
+        UIBarItem * item = [self.items objectAtIndex:index];
+        [self.delegate toolbar:self didSelectItem:item];
+    }
+}
+
+#pragma mark - setter and geter
+- (void)setItems:(NSArray<__kindof UIBarItem *> *)items {
+    _items = items;
+    
+    NSMutableArray * widths = [[NSMutableArray alloc] initWithCapacity:items.count];
+    CGSize size = self.bounds.size;
+    for (UIBarItem * item in items) {
+        NSDictionary * atts = @{
+            NSFontAttributeName:[UIFont systemFontOfSize:12],
+        };
+        NSString * title = item.title;
+        CGRect textRect = [title boundingRectWithSize:size options:0 attributes:atts context:nil];
+        CGFloat width = CGRectGetWidth(textRect);
+        width += 10;
+        [widths addObject:@(width)];
+    }
+    self.widthCache = widths;
+    [self.collectView reloadData];
+}
+
+#pragma mark - CollectionView delegate and dataSource
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.items? self.items.count:0;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    TextCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"ReuseIdentifier" forIndexPath:indexPath];
+    
+    UIBarItem * item = [self.items objectAtIndex:indexPath.row];
+    cell.textLabel.text = item.title;
+    return cell;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    [self _didSelectIndex: indexPath.row];
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    CGSize size = [(UICollectionViewFlowLayout *)collectionViewLayout itemSize];
+    
+    if (indexPath.row < self.widthCache.count) {
+        size.width = [self.widthCache[indexPath.row] floatValue];
+    }
+    return size;
+}
+
+@end
