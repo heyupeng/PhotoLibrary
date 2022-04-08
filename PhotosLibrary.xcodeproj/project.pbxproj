@@ -335,15 +335,10 @@
 				049EB35621AFAFF600CEFC9A /* HYPAssetModel.m */,
 				040A881421B147A700222A53 /* HYPImageManager.h */,
 				040A881521B147A700222A53 /* HYPImageManager.m */,
-				040A881A21B7B41C00222A53 /* HYPFilterHelper.h */,
-				040A881B21B7B41C00222A53 /* HYPFilterHelper.m */,
-				B8D5717E27F1667E007E90D5 /* FilterAttributesController.h */,
-				B8D5717D27F1667E007E90D5 /* FilterAttributesController.m */,
-				B803A9E727F3296F00F2C881 /* CIFilterAttribute.h */,
-				B803A9E827F3296F00F2C881 /* CIFilterAttribute.m */,
 				B803A9E627F3293400F2C881 /* Cell */,
 				049EB35421AE509100CEFC9A /* CollectionVIew */,
 				04AFBD6221DDECDA00B78DA2 /* CustomView */,
+				B8639FB02B1ECFDC009A7428 /* FilterHelp */,
 				04C1018221D3291200B264C2 /* CustomFilters */,
 				040A881721B6206000222A53 /* UIImage+Editor.h */,
 				040A881821B6206000222A53 /* UIImage+Editor.m */,
@@ -387,6 +382,19 @@
 				B803A9FE27F6DB6400F2C881 /* ColorConversion.m */,
 			);
 			path = ColorConversion;
+			sourceTree = "<group>";
+		};
+		B8639FB02B1ECFDC009A7428 /* FilterHelp */ = {
+			isa = PBXGroup;
+			children = (
+				040A881A21B7B41C00222A53 /* HYPFilterHelper.h */,
+				040A881B21B7B41C00222A53 /* HYPFilterHelper.m */,
+				B8D5717E27F1667E007E90D5 /* FilterAttributesController.h */,
+				B8D5717D27F1667E007E90D5 /* FilterAttributesController.m */,
+				B803A9E727F3296F00F2C881 /* CIFilterAttribute.h */,
+				B803A9E827F3296F00F2C881 /* CIFilterAttribute.m */,
+			);
+			path = FilterHelp;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

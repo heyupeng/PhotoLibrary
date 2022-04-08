@@ -153,7 +153,7 @@ typedef NS_ENUM(NSUInteger, CellAccessoryActionType) {
 
 #define UITableViewCellReuseIdentifier @"UITableViewCellReuseIdentifier"
 
-#import "CustomView/HYPView.h"
+#import "HYPView.h"
 
 @interface FilterAttributesController ()<UITableViewDelegate, UITableViewDataSource>
 
